@@ -1,0 +1,31 @@
+#!name=MissAV 分流规则
+#!desc=MissAV 主站、视频 CDN、封面预览走代理；常见广告/跳转域名拦截。基于抓包域名整理。
+#!author=zijinan
+#!homepage=https://github.com/zijinan/Loon-rule
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png
+
+[Rule]
+# MissAV 主站
+DOMAIN-SUFFIX,missav.ws,PROXY
+DOMAIN-SUFFIX,missav.live,PROXY
+DOMAIN-SUFFIX,missav.ai,PROXY
+DOMAIN-SUFFIX,missav.com,PROXY
+
+# MissAV 视频 / 图片 / 预览 CDN
+DOMAIN-SUFFIX,surrit.com,PROXY
+DOMAIN-SUFFIX,fourhoi.com,PROXY
+
+# MissAV 推荐接口
+DOMAIN,client-rapi-missav.recombee.com,PROXY
+DOMAIN-SUFFIX,recombee.com,PROXY
+
+# Cloudflare 验证相关：默认不强制代理，避免影响面过大。
+# 如果出现 Cloudflare 验证循环，可以取消下一行注释。
+# DOMAIN-SUFFIX,cloudflare.com,PROXY
+
+# 广告 / 跳转 / 统计
+DOMAIN-SUFFIX,tsyndicate.com,REJECT
+DOMAIN-SUFFIX,rallytrck.website,REJECT
+DOMAIN-SUFFIX,bluetrafficstream.com,REJECT
+DOMAIN-SUFFIX,myavlive.com,REJECT
+DOMAIN-SUFFIX,keepshare.org,REJECT
