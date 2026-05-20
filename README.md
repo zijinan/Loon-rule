@@ -43,4 +43,4 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/MissAV.lpx
 https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/TencentVideo.lpx
 ```
 
-说明：只 MITM `i.video.qq.com`，只做 `http-request` 拦截，不做 `http-response` 或 response-body 改写，避免 Loon 缓存膨胀。
+说明：只 MITM 腾讯视频的小配置/广告接口，使用规则、Rewrite reject 和请求阶段脚本拦截，不做响应阶段脚本或响应体改写，避免 Loon 缓存膨胀。
