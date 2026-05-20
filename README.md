@@ -37,3 +37,10 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/MissAV.lpx
 ```
 
 前面的 `#` 注释符号。
+## 腾讯视频 AntiCache 插件
+
+```text
+https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/TencentVideo.lpx
+```
+
+说明：只 MITM `i.video.qq.com`，只做 `http-request` 拦截，不做 `http-response` 或 response-body 改写，避免 Loon 缓存膨胀。
