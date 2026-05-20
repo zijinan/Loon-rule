@@ -45,6 +45,12 @@ DOMAIN-SUFFIX,in-neo.cn,REJECT
 DOMAIN-SUFFIX,reachmax.cn,REJECT
 DOMAIN-SUFFIX,miaozhen.com,REJECT
 DOMAIN,ccc-x.jd.com,REJECT
+DOMAIN,ef-dongfeng.tanx.com,REJECT
+DOMAIN,bdlog.tanx.com,REJECT
+DOMAIN,o2o-ad-clicking.alibaba.com,REJECT
+DOMAIN,err.taobao.com,REJECT
+DOMAIN,error.taobao.com,REJECT
+DOMAIN-SUFFIX,tanx.com,REJECT
 
 # 腾讯视频抓包命中的统计 / 性能 / 埋点
 DOMAIN,trace.inlong.qq.com,REJECT
@@ -52,14 +58,19 @@ DOMAIN-SUFFIX,rumt-zh.com,REJECT
 DOMAIN,szmg.qq.com,REJECT
 DOMAIN,hc.tdm.qq.com,REJECT
 DOMAIN,receiver.tdm.qq.com,REJECT
+DOMAIN,tmfmazu.m.qq.com,REJECT
+DOMAIN,sdkreport.e.qq.com,REJECT
 
 [rewrite]
 # Small config/ad endpoints observed in Tencent Video traffic. Rejecting these avoids reading large video/image bodies.
 ^https:\/\/(config\.ab\.qq\.com|tab\.video\.qq\.com)\/tab\/GetTabRemoteConfig - reject-dict
+^https:\/\/config\.ab\.qq\.com\/tab\/GetTabToggle - reject-dict
 ^https:\/\/appcfg\.v\.qq\.com\/getconf - reject-dict
 ^https:\/\/rdelivery\.qq\.com\/(v3\/config\/pull|v1\/sdkconfig\/get) - reject-dict
 ^https:\/\/playproxy\.video\.qq\.com\/monet\/comm_resource\/get - reject-dict
 ^https:\/\/iwan\.video\.qq\.com\/trpc\.vgopen\.mini_game_detail\.MiniGameDetail\/GetPreloadGames - reject-dict
+^https:\/\/vip\.image\.video\.qpic\.cn\/wupload\/xy\/promotionTest\/ - reject
+^https?:\/\/i\.gtimg\.cn\/qqlive\/images\/20170912\/enter_gray\.png - reject
 ^https?:\/\/vv\.video\.qq\.com\/(diff|get)vmind - reject-dict
 ^http:\/\/[\d\.:]*\/?(defaultts\.tc|vmind\.qqvideo\.tc|finderpdd\.video)\.qq\.com\/\w+ - reject
 ^http:\/\/apd-vlive\.apdcdn\.tc\.qq\.com\/vmind\.qqvideo\.tc\.qq\.com\/\w+ - reject
@@ -73,4 +84,4 @@ DOMAIN,receiver.tdm.qq.com,REJECT
 http-request ^https?:\/\/i\.video\.qq\.com\/?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.request.js,tag = TencentVideo-AntiCache,requires-body = true,timeout = 10,binary-body-mode = false,enable=true
 
 [mitm]
-hostname = i.video.qq.com, rdelivery.qq.com, appcfg.v.qq.com, tab.video.qq.com, config.ab.qq.com, playproxy.video.qq.com, iwan.video.qq.com, vv.video.qq.com
+hostname = i.video.qq.com, rdelivery.qq.com, appcfg.v.qq.com, tab.video.qq.com, config.ab.qq.com, playproxy.video.qq.com, iwan.video.qq.com, vv.video.qq.com, vip.image.video.qpic.cn
