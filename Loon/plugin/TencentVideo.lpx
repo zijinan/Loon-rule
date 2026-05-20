@@ -81,7 +81,7 @@ DOMAIN,sdkreport.e.qq.com,REJECT
 # 1. 只做请求阶段脚本，不做响应阶段脚本。
 # 2. 不读取/改写视频 CDN、qpic、gtimg 图片/视频大响应体。
 # 3. 拦截 i.video.qq.com 的小 POST 任务，阻止 App 下发广告、推广、列表广告、预加载缓存素材任务。
-http-request ^https?:\/\/i\.video\.qq\.com\/?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.request.js,tag = TencentVideo-AntiCache,requires-body = true,timeout = 10,binary-body-mode = false,enable=true
+http-request ^https?:\/\/i\.video\.qq\.com\/?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.rpc.js,tag = TencentVideo-RPC,requires-body = true,timeout = 10,binary-body-mode = true,enable=true
 
 [mitm]
 hostname = i.video.qq.com, rdelivery.qq.com, appcfg.v.qq.com, tab.video.qq.com, config.ab.qq.com, playproxy.video.qq.com, iwan.video.qq.com, vv.video.qq.com, vip.image.video.qpic.cn
