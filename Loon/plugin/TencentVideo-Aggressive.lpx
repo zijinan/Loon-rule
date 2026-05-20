@@ -1,0 +1,23 @@
+#!name= Tencent Video AdBlock Aggressive
+#!desc= Tencent Video aggressive fallback. Rewrite-only, no response-body script, avoids large Loon cache growth but may affect home/feed loading.
+#!author= zijinan
+#!homepage= https://github.com/zijinan/Loon-rule
+#!date= 2026-05-20
+#!risk= high
+
+[rewrite]
+# Aggressive fallback: block the main RPC endpoint before the server response is downloaded.
+# Use only when the normal TencentVideo plugin's request script is not executed by Loon.
+^https:\/\/i\.video\.qq\.com\/?$ - reject-dict
+^https:\/\/(config\.ab\.qq\.com|tab\.video\.qq\.com)\/tab\/GetTabRemoteConfig - reject-dict
+^https:\/\/appcfg\.v\.qq\.com\/getconf - reject-dict
+^https:\/\/rdelivery\.qq\.com\/(v3\/config\/pull|v1\/sdkconfig\/get) - reject-dict
+^https:\/\/playproxy\.video\.qq\.com\/monet\/comm_resource\/get - reject-dict
+^https:\/\/iwan\.video\.qq\.com\/trpc\.vgopen\.mini_game_detail\.MiniGameDetail\/GetPreloadGames - reject-dict
+^https?:\/\/vv\.video\.qq\.com\/(diff|get)vmind - reject-dict
+^http:\/\/[\d\.:]*\/?(defaultts\.tc|vmind\.qqvideo\.tc|finderpdd\.video)\.qq\.com\/\w+ - reject
+^http:\/\/apd-vlive\.apdcdn\.tc\.qq\.com\/vmind\.qqvideo\.tc\.qq\.com\/\w+ - reject
+^http:\/\/apd-\w+\.v\.smtcdns\.com\/(defaultts|omts|vmind\.qqvideo)\.tc\.qq\.com\/\w+ - reject
+
+[mitm]
+hostname = i.video.qq.com, rdelivery.qq.com, appcfg.v.qq.com, tab.video.qq.com, config.ab.qq.com, playproxy.video.qq.com, iwan.video.qq.com, vv.video.qq.com
