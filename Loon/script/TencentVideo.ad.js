@@ -10,7 +10,31 @@
 (function () {
   const url = $request.url || "";
   const method = ($request.method || "").toUpperCase();
-  const body = typeof $request.body === "string" ? $request.body : "";
+  const body = bodyToText($request.body);
+
+  function bodyToText(value) {
+    if (!value) {
+      return "";
+    }
+    if (typeof value === "string") {
+      return value;
+    }
+    if (typeof Uint8Array !== "undefined" && value instanceof Uint8Array) {
+      let text = "";
+      for (let i = 0; i < value.length; i += 1) {
+        text += String.fromCharCode(value[i]);
+      }
+      return text;
+    }
+    if (Array.isArray(value)) {
+      let text = "";
+      for (let i = 0; i < value.length; i += 1) {
+        text += String.fromCharCode(value[i]);
+      }
+      return text;
+    }
+    return String(value);
+  }
 
   function pass() {
     $done({});
