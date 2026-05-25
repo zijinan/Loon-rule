@@ -1,0 +1,28 @@
+# Secret and private material must never be committed.
+*.p12
+*.mobileconfig
+*.key
+*.pem
+*.cer
+*.crt
+
+*private*
+*secret*
+*token*
+
+# Ignore all non-public Loon configs by default.
+Loon_*.conf
+!Loon_*.public.conf
+
+# Allow placeholder-only examples and public rules.
+!Loon/
+!Loon/private.example.conf
+!Loon/rule/
+!Loon/rule/*.list
+
+# Local source backups may contain real nodes, subscriptions, or MITM CA data.
+backups/
+*.backup
+*.bak
+*.orig
+新建 文本文档*
