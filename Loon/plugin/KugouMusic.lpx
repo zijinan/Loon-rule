@@ -2,10 +2,10 @@
 #!desc= 酷狗音乐广告/推广素材/埋点上报拦截。抓包定制脚本版：只对小 JSON 接口启用脚本，不改写播放/封面/歌曲 CDN 大响应体，避免 Loon 缓存暴涨。
 #!author= zijinan
 #!homepage= https://github.com/zijinan/Loon-rule
-#!date= 2026-05-25
+#!date= 2026-05-26
 #!risk= medium
 
-[rule]
+[Rule]
 # 抓包高频命中：统计、埋点、曝光、推送上报。规则层拒绝，不走响应体缓存。
 DOMAIN,nbcollect.kugou.com,REJECT
 DOMAIN,mobilelog.kugou.com,REJECT
@@ -20,7 +20,7 @@ IP-CIDR,183.2.141.179/32,REJECT,no-resolve
 DOMAIN,mdpfilebssdlbig.kugou.com,REJECT
 DOMAIN,youthimgbssdl.kugou.com,REJECT
 
-[rewrite]
+[Rewrite]
 # 广告追踪配置：小 JSON，直接返回空字典，避免后续下发第三方监测域名。
 ^https?:\/\/mobilelog\.kugou\.com\/adtrackconfig\.json - reject-dict
 
@@ -35,17 +35,17 @@ DOMAIN,youthimgbssdl.kugou.com,REJECT
 ^https?:\/\/push\.mobile\.kugou\.com\/v1\/report\/device - reject-dict
 ^https?:\/\/install2\.kugou\.com\/(mobileuc|lifecycle)\/ - reject
 
-[script]
+[Script]
 # AntiCache 脚本原则：
 # 1. 只挂小 JSON / 非核心推广接口。
 # 2. 不挂 imge.tx.kugou.com、media.store.kugou.com、vip.kugou.com、歌曲播放/封面/CDN。
 # 3. 脚本内部超过 256KB 不解析，避免 Loon 缓存/内存压力。
-http-response ^https?:\/\/config\.mobile\.kugou\.com\/v2\/appconfig\/index requires-body=true,binary-body-mode=false,script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js,tag=Kugou-AppConfig-Clean,timeout=8,enable=true
-http-response ^https?:\/\/acsing\.kugou\.com\/sing7\/json\/v2\/cdn\/big_gift_list\/v2 requires-body=true,binary-body-mode=false,script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js,tag=Kugou-Gift-Clean,timeout=8,enable=true
-http-response ^https?:\/\/acsing\.kugou\.com\/sing7\/kingsbounty\/json\/v2\/cdn\/douge\/get_bounty_homepage requires-body=true,binary-body-mode=false,script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js,tag=Kugou-Bounty-Clean,timeout=8,enable=true
-http-response ^https?:\/\/youthimgbssdl\.kugou\.com\/[^\/]+\.json requires-body=true,binary-body-mode=false,script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js,tag=Kugou-YouthJson-Clean,timeout=8,enable=true
-http-response ^https?:\/\/welfare\.kugou\.com\/pendant\/v1\/get_user_pendant requires-body=true,binary-body-mode=false,script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js,tag=Kugou-Pendant-Clean,timeout=8,enable=true
+http-response ^https?:\/\/config\.mobile\.kugou\.com\/v2\/appconfig\/index requires-body=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js, tag=Kugou-AppConfig-Clean, timeout=8, enable=true
+http-response ^https?:\/\/acsing\.kugou\.com\/sing7\/json\/v2\/cdn\/big_gift_list\/v2 requires-body=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js, tag=Kugou-Gift-Clean, timeout=8, enable=true
+http-response ^https?:\/\/acsing\.kugou\.com\/sing7\/kingsbounty\/json\/v2\/cdn\/douge\/get_bounty_homepage requires-body=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js, tag=Kugou-Bounty-Clean, timeout=8, enable=true
+http-response ^https?:\/\/youthimgbssdl\.kugou\.com\/[^\/]+\.json requires-body=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js, tag=Kugou-YouthJson-Clean, timeout=8, enable=true
+http-response ^https?:\/\/welfare\.kugou\.com\/pendant\/v1\/get_user_pendant requires-body=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/KugouMusic.ad.js, tag=Kugou-Pendant-Clean, timeout=8, enable=true
 
-[mitm]
+[MITM]
 # AntiCache 原则：只 MITM 小配置/广告/统计接口；不加入 imge.tx.kugou.com、media.store.kugou.com、vip.kugou.com 等大流量/播放相关域名。
 hostname = mobilelog.kugou.com, acsing.kugou.com, youthimgbssdl.kugou.com, welfare.kugou.com, mdpfilebssdlbig.kugou.com, nbcollect.kugou.com, rt-m.kugou.com, d.kugou.com, filter.kugou.com, push.mobile.kugou.com, install2.kugou.com, config.mobile.kugou.com
