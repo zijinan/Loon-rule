@@ -1,41 +1,121 @@
 # NAME: HonorOfKings_Direct
-# AUTHOR: local public template
-# DESC: Honor of Kings / Tencent domestic game DIRECT rule list. Use with policy=DIRECT or 国内游戏策略.
-# SECURITY: No script, rewrite, MITM, ad removal, token, node, or certificate content.
+# AUTHOR: zijinan / ChatGPT
+# DESC: Honor of Kings / Tencent domestic game DIRECT rule list migrated from the old plugin.
+# SECURITY: Rule-only list. No plugin, no script, no rewrite, no MITM, no Host section, no server:system DNS override.
+# USAGE: Add as Remote Rule with policy=DIRECT or policy=国内游戏策略.
 
-# Honor of Kings official, game, config, update, telemetry, and CDN.
-DOMAIN-SUFFIX,pvp.qq.com
+# GCloud / Tencent game cloud / config / CDN
+DOMAIN-SUFFIX,gcloudcs.com
+DOMAIN-SUFFIX,gcloudsdk.com
+DOMAIN-SUFFIX,gcloudsvcs.com
+DOMAIN-SUFFIX,gcloudgbs.com
+DOMAIN-SUFFIX,gcloud.qq.com
+DOMAIN,cn.voice.gcloudcs.com
+DOMAIN,sgamecdn.cn.gcloudcs.com
+DOMAIN,idcconfig.gcloudsdk.com
+DOMAIN,qosidc.gcloudsdk.com
+DOMAIN,cloudctrl.gcloud.qq.com
+
+# Honor of Kings / SMOBA official paths
 DOMAIN-SUFFIX,smoba.qq.com
-DOMAIN-SUFFIX,game.qq.com
+DOMAIN,image.smoba.qq.com
+DOMAIN,iwx.smoba.qq.com
+DOMAIN,prodsgamehub.ecology.smoba.qq.com
+DOMAIN,measurement.sh.prod.smoba.qq.com
+DOMAIN,measurement.gz.prod.smoba.qq.com
+DOMAIN,measurement.cq.prod.smoba.qq.com
+DOMAIN,measurement.tj.prod.smoba.qq.com
+DOMAIN-SUFFIX,pvp.qq.com
 DOMAIN-SUFFIX,tencentgames.com
 DOMAIN-SUFFIX,ieg.tencent.com
 DOMAIN-SUFFIX,msdk.qq.com
-DOMAIN-SUFFIX,gcloud.qq.com
-DOMAIN-SUFFIX,gcloudcs.com
-DOMAIN-SUFFIX,gvoice.qq.com
-DOMAIN-SUFFIX,gvoice.tencent.com
+DOMAIN-SUFFIX,myapp.com
+DOMAIN-KEYWORD,smoba
+DOMAIN-KEYWORD,sgame
+DOMAIN-KEYWORD,honorofkings
+DOMAIN-KEYWORD,hok
+
+# QQ game center / login / in-game / app services
+DOMAIN-SUFFIX,ingame.qq.com
+DOMAIN-SUFFIX,itop.qq.com
+DOMAIN-SUFFIX,igame.qq.com
+DOMAIN-SUFFIX,game.qq.com
+DOMAIN-SUFFIX,connect.qq.com
+DOMAIN-SUFFIX,native.qq.com
+DOMAIN,app.ingame.qq.com
+DOMAIN,pvp.ingame.qq.com
+DOMAIN,priv.igame.qq.com
+DOMAIN,superr.game.qq.com
+DOMAIN,sgame.itop.qq.com
+DOMAIN,pop-release.itop.qq.com
+DOMAIN,faasyxzj.native.qq.com
+DOMAIN,flow.qq.com
+DOMAIN,cgi.connect.qq.com
+
+# TGPA / TGA / esports / video CDN
+DOMAIN-SUFFIX,tgpa.qq.com
+DOMAIN,cloud.tgpa.qq.com
+DOMAIN-SUFFIX,tga.qq.com
+DOMAIN-SUFFIX,kohesport.qq.com
+DOMAIN-SUFFIX,smtcdns.net
+DOMAIN-SUFFIX,video.qq.com
+DOMAIN,tiem-cdn.qq.com
+DOMAIN,static-estv.tga.qq.com
+DOMAIN,smobatv-pic.tga.qq.com
+DOMAIN,estv-op.tga.qq.com
+DOMAIN,download-estv.tga.qq.com
+DOMAIN,estv-conn.tga.qq.com
+DOMAIN,op.tv.kohesport.qq.com
+DOMAIN,report.tv.kohesport.qq.com
+DOMAIN,txycdn.video.qq.com
+DOMAIN,txycdn4.video.qq.com
+DOMAIN,txycdn5.video.qq.com
+DOMAIN,info.zb.video.qq.com
+DOMAIN,vv.video.qq.com
+
+# Telemetry / performance / crash / push / report
+DOMAIN-SUFFIX,tdm.qq.com
+DOMAIN-SUFFIX,mdt.qq.com
+DOMAIN-SUFFIX,trace.qq.com
+DOMAIN-SUFFIX,crashsight.qq.com
+DOMAIN-SUFFIX,perfsight.qq.com
+DOMAIN-SUFFIX,tpns.sh.tencent.com
 DOMAIN-SUFFIX,wetest.qq.com
 DOMAIN-SUFFIX,bugly.qq.com
 DOMAIN-SUFFIX,report.qq.com
 DOMAIN-SUFFIX,pingma.qq.com
 DOMAIN-SUFFIX,beacon.qq.com
 DOMAIN-SUFFIX,log.tbs.qq.com
+DOMAIN,receiver.tdm.qq.com
+DOMAIN,hc2.tdm.qq.com
+DOMAIN,configurator.tdm.qq.com
+DOMAIN,p-receiver.tdm.qq.com
+DOMAIN,h.trace.qq.com
+DOMAIN,ios.crashsight.qq.com
+DOMAIN,ios.perfsight.qq.com
+DOMAIN,guid.tpns.sh.tencent.com
+DOMAIN,stat.tpns.sh.tencent.com
+
+# Payment / account / Tencent CDN images
 DOMAIN-SUFFIX,midas.qq.com
 DOMAIN-SUFFIX,unipay.qq.com
 DOMAIN-SUFFIX,pay.qq.com
-DOMAIN-SUFFIX,myapp.com
 DOMAIN-SUFFIX,gtimg.com
 DOMAIN-SUFFIX,gtimg.cn
 DOMAIN-SUFFIX,idqqimg.com
-DOMAIN-SUFFIX,qlogo.cn
 DOMAIN-SUFFIX,qpic.cn
-DOMAIN-SUFFIX,qq.com
+DOMAIN-SUFFIX,qlogo.cn
+DOMAIN-SUFFIX,myqcloud.com
+DOMAIN-SUFFIX,qcloud.com
 DOMAIN-SUFFIX,tencent.com
 DOMAIN-SUFFIX,tencent-cloud.com
 DOMAIN-SUFFIX,tencent-cloud.net
-DOMAIN-SUFFIX,qcloud.com
-DOMAIN-SUFFIX,myqcloud.com
-DOMAIN-KEYWORD,smoba
-DOMAIN-KEYWORD,sgame
-DOMAIN-KEYWORD,honorofkings
-DOMAIN-KEYWORD,hok
+DOMAIN-SUFFIX,qq.com
+
+# International Honor of Kings / Arena of Valor compatibility
+DOMAIN-SUFFIX,warsongmobile.com
+DOMAIN,speedsg.warsongmobile.com
+DOMAIN,speedeu.warsongmobile.com
+DOMAIN,speedna.warsongmobile.com
+DOMAIN,speedsa.warsongmobile.com
+DOMAIN,speedind.warsongmobile.com
