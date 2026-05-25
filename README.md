@@ -110,3 +110,11 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/TencentVide
 ```
 
 说明：只 MITM 腾讯视频的小配置/广告接口，使用规则、Rewrite reject 和请求阶段脚本拦截，不做响应阶段脚本或响应体改写，避免 Loon 缓存膨胀。
+
+## 酷狗音乐 AntiCache 插件
+
+```text
+https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/KugouMusic.lpx
+```
+
+说明：根据抓包定制，主要拦截酷狗音乐统计、曝光、推送上报、广告追踪配置、活动推广素材和大体积礼物/挂件资源；保留登录、VIP、音乐播放、歌曲封面、会员状态等核心接口。不做响应体改写，避免 Loon 缓存膨胀。
