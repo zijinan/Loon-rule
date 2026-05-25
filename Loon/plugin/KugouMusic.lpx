@@ -1,0 +1,46 @@
+#!name= 酷狗音乐去广告 AntiCache
+#!desc= 酷狗音乐广告/推广素材/埋点上报拦截。抓包定制版：只拦截小配置、广告素材、统计与礼物/挂件推广资源，不改写大响应体，避免 Loon 缓存暴涨。
+#!author= zijinan
+#!homepage= https://github.com/zijinan/Loon-rule
+#!date= 2026-05-25
+#!risk= medium
+
+[rule]
+# 抓包高频命中：统计、埋点、曝光、推送上报。规则层拒绝，不走响应体缓存。
+DOMAIN,nbcollect.kugou.com,REJECT
+DOMAIN,mobilelog.kugou.com,REJECT
+DOMAIN,rt-m.kugou.com,REJECT
+DOMAIN,d.kugou.com,REJECT
+DOMAIN,filter.kugou.com,REJECT
+DOMAIN,push.mobile.kugou.com,REJECT
+DOMAIN,install2.kugou.com,REJECT
+IP-CIDR,183.2.141.179/32,REJECT,no-resolve
+
+# 抓包命中的酷狗首页/活动推广素材 CDN。保留 imge.tx.kugou.com、media.store.kugou.com、vip.kugou.com，避免影响封面、播放、会员状态。
+DOMAIN,mdpfilebssdlbig.kugou.com,REJECT
+DOMAIN,youthimgbssdl.kugou.com,REJECT
+
+[rewrite]
+# 广告追踪配置：小 JSON，直接返回空字典，避免后续下发第三方监测域名。
+^https?:\/\/mobilelog\.kugou\.com\/adtrackconfig\.json - reject-dict
+
+# 酷狗唱唱/礼物/挂件类推广资源：抓包里出现 600KB+ JSON 与 base64 图片，非核心听歌功能，优先拦截防缓存膨胀。
+^https?:\/\/acsing\.kugou\.com\/sing7\/json\/v2\/cdn\/big_gift_list\/v2 - reject-dict
+^https?:\/\/acsing\.kugou\.com\/sing7\/kingsbounty\/json\/v2\/cdn\/douge\/get_bounty_homepage - reject-dict
+^https?:\/\/youthimgbssdl\.kugou\.com\/[^\/]+\.json - reject-dict
+^https?:\/\/welfare\.kugou\.com\/pendant\/v1\/get_user_pendant - reject-dict
+
+# 抓包命中的活动推广 PNG，使用精确路径；不 MITM 音乐封面/歌曲 CDN。
+^https?:\/\/mdpfilebssdlbig\.kugou\.com\/[0-9a-f]{32}\.png - reject
+
+# 统计/曝光/推送上报，返回空响应，减少 App 重试与日志缓存。
+^https?:\/\/nbcollect\.kugou\.com\/v3\/post - reject-dict
+^https?:\/\/rt-m\.kugou\.com\/v2\/post - reject-dict
+^https?:\/\/d\.kugou\.com\/v2\/(post|gen) - reject-dict
+^https?:\/\/filter\.kugou\.com\/v1\/exposureupload - reject-dict
+^https?:\/\/push\.mobile\.kugou\.com\/v1\/report\/device - reject-dict
+^https?:\/\/install2\.kugou\.com\/(mobileuc|lifecycle)\/ - reject
+
+[mitm]
+# AntiCache 原则：只 MITM 小配置/广告/统计接口；不加入 imge.tx.kugou.com、media.store.kugou.com、vip.kugou.com 等大流量/播放相关域名。
+hostname = mobilelog.kugou.com, acsing.kugou.com, youthimgbssdl.kugou.com, welfare.kugou.com, mdpfilebssdlbig.kugou.com, nbcollect.kugou.com, rt-m.kugou.com, d.kugou.com, filter.kugou.com, push.mobile.kugou.com, install2.kugou.com
