@@ -16,6 +16,19 @@ DOMAIN,idcconfig.gcloudsdk.com
 DOMAIN,qosidc.gcloudsdk.com
 DOMAIN,cloudctrl.gcloud.qq.com
 
+# Tencent CDN scheduler / TDN schedule generated domains
+DOMAIN,tiem-cdn.qq.com
+DOMAIN-SUFFIX,tdnsv6.com
+DOMAIN-SUFFIX,tdnsv5.com
+DOMAIN-SUFFIX,tdnsv4.com
+DOMAIN-KEYWORD,tiem-cdn
+DOMAIN-KEYWORD,legopic
+
+# Tencent ACE / Anti-Cheat Expert
+DOMAIN-SUFFIX,anticheatexpert.com
+DOMAIN-SUFFIX,cschannel.anticheatexpert.com
+DOMAIN,nj.cschannel.anticheatexpert.com
+
 # Honor of Kings / SMOBA official paths
 DOMAIN-SUFFIX,smoba.qq.com
 DOMAIN,image.smoba.qq.com
@@ -59,7 +72,6 @@ DOMAIN-SUFFIX,tga.qq.com
 DOMAIN-SUFFIX,kohesport.qq.com
 DOMAIN-SUFFIX,smtcdns.net
 DOMAIN-SUFFIX,video.qq.com
-DOMAIN,tiem-cdn.qq.com
 DOMAIN,static-estv.tga.qq.com
 DOMAIN,smobatv-pic.tga.qq.com
 DOMAIN,estv-op.tga.qq.com
