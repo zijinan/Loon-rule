@@ -1,0 +1,117 @@
+#!name= 王者荣耀直连与 DNS 优化
+#!desc= 修复王者荣耀相关 gcloud、smoba、tgpa、tdm、smtcdns 等域名掉到 FINAL 走代理；并让相关域名使用系统 DNS，减少国内 CDN 定位异常。
+#!author= zijinan / ChatGPT
+#!homepage= https://github.com/zijinan/Loon-rule
+#!date= 2026-05-25
+#!risk= low
+
+[rule]
+DOMAIN-SUFFIX,gcloudcs.com,DIRECT
+DOMAIN-SUFFIX,gcloudsdk.com,DIRECT
+DOMAIN-SUFFIX,gcloudsvcs.com,DIRECT
+DOMAIN-SUFFIX,gcloudgbs.com,DIRECT
+DOMAIN-SUFFIX,gcloud.qq.com,DIRECT
+DOMAIN,cn.voice.gcloudcs.com,DIRECT
+DOMAIN,sgamecdn.cn.gcloudcs.com,DIRECT
+DOMAIN,idcconfig.gcloudsdk.com,DIRECT
+DOMAIN,qosidc.gcloudsdk.com,DIRECT
+DOMAIN,cloudctrl.gcloud.qq.com,DIRECT
+DOMAIN-SUFFIX,smoba.qq.com,DIRECT
+DOMAIN,image.smoba.qq.com,DIRECT
+DOMAIN,iwx.smoba.qq.com,DIRECT
+DOMAIN,prodsgamehub.ecology.smoba.qq.com,DIRECT
+DOMAIN,measurement.sh.prod.smoba.qq.com,DIRECT
+DOMAIN,measurement.gz.prod.smoba.qq.com,DIRECT
+DOMAIN,measurement.cq.prod.smoba.qq.com,DIRECT
+DOMAIN,measurement.tj.prod.smoba.qq.com,DIRECT
+DOMAIN-SUFFIX,ingame.qq.com,DIRECT
+DOMAIN-SUFFIX,itop.qq.com,DIRECT
+DOMAIN-SUFFIX,igame.qq.com,DIRECT
+DOMAIN-SUFFIX,game.qq.com,DIRECT
+DOMAIN-SUFFIX,pvp.qq.com,DIRECT
+DOMAIN-SUFFIX,connect.qq.com,DIRECT
+DOMAIN-SUFFIX,native.qq.com,DIRECT
+DOMAIN,app.ingame.qq.com,DIRECT
+DOMAIN,pvp.ingame.qq.com,DIRECT
+DOMAIN,priv.igame.qq.com,DIRECT
+DOMAIN,superr.game.qq.com,DIRECT
+DOMAIN,sgame.itop.qq.com,DIRECT
+DOMAIN,pop-release.itop.qq.com,DIRECT
+DOMAIN,faasyxzj.native.qq.com,DIRECT
+DOMAIN,flow.qq.com,DIRECT
+DOMAIN,cgi.connect.qq.com,DIRECT
+DOMAIN-SUFFIX,tgpa.qq.com,DIRECT
+DOMAIN,cloud.tgpa.qq.com,DIRECT
+DOMAIN-SUFFIX,tga.qq.com,DIRECT
+DOMAIN-SUFFIX,kohesport.qq.com,DIRECT
+DOMAIN-SUFFIX,smtcdns.net,DIRECT
+DOMAIN-SUFFIX,video.qq.com,DIRECT
+DOMAIN-SUFFIX,gtimg.cn,DIRECT
+DOMAIN-SUFFIX,qpic.cn,DIRECT
+DOMAIN-SUFFIX,qlogo.cn,DIRECT
+DOMAIN-SUFFIX,myqcloud.com,DIRECT
+DOMAIN,tiem-cdn.qq.com,DIRECT
+DOMAIN,static-estv.tga.qq.com,DIRECT
+DOMAIN,smobatv-pic.tga.qq.com,DIRECT
+DOMAIN,estv-op.tga.qq.com,DIRECT
+DOMAIN,download-estv.tga.qq.com,DIRECT
+DOMAIN,estv-conn.tga.qq.com,DIRECT
+DOMAIN,op.tv.kohesport.qq.com,DIRECT
+DOMAIN,report.tv.kohesport.qq.com,DIRECT
+DOMAIN,txycdn.video.qq.com,DIRECT
+DOMAIN,txycdn4.video.qq.com,DIRECT
+DOMAIN,txycdn5.video.qq.com,DIRECT
+DOMAIN,info.zb.video.qq.com,DIRECT
+DOMAIN,vv.video.qq.com,DIRECT
+DOMAIN-SUFFIX,tdm.qq.com,DIRECT
+DOMAIN-SUFFIX,mdt.qq.com,DIRECT
+DOMAIN-SUFFIX,trace.qq.com,DIRECT
+DOMAIN-SUFFIX,crashsight.qq.com,DIRECT
+DOMAIN-SUFFIX,perfsight.qq.com,DIRECT
+DOMAIN-SUFFIX,tpns.sh.tencent.com,DIRECT
+DOMAIN,receiver.tdm.qq.com,DIRECT
+DOMAIN,hc2.tdm.qq.com,DIRECT
+DOMAIN,configurator.tdm.qq.com,DIRECT
+DOMAIN,p-receiver.tdm.qq.com,DIRECT
+DOMAIN,h.trace.qq.com,DIRECT
+DOMAIN,ios.crashsight.qq.com,DIRECT
+DOMAIN,ios.perfsight.qq.com,DIRECT
+DOMAIN,guid.tpns.sh.tencent.com,DIRECT
+DOMAIN,stat.tpns.sh.tencent.com,DIRECT
+DOMAIN-SUFFIX,warsongmobile.com,DIRECT
+DOMAIN,speedsg.warsongmobile.com,DIRECT
+DOMAIN,speedeu.warsongmobile.com,DIRECT
+DOMAIN,speedna.warsongmobile.com,DIRECT
+DOMAIN,speedsa.warsongmobile.com,DIRECT
+DOMAIN,speedind.warsongmobile.com,DIRECT
+
+[host]
+*.gcloudcs.com = server:system
+*.gcloudsdk.com = server:system
+*.gcloudsvcs.com = server:system
+*.gcloudgbs.com = server:system
+*.gcloud.qq.com = server:system
+*.smoba.qq.com = server:system
+*.ingame.qq.com = server:system
+*.itop.qq.com = server:system
+*.igame.qq.com = server:system
+*.game.qq.com = server:system
+*.pvp.qq.com = server:system
+*.connect.qq.com = server:system
+*.native.qq.com = server:system
+*.tgpa.qq.com = server:system
+*.tga.qq.com = server:system
+*.kohesport.qq.com = server:system
+*.smtcdns.net = server:system
+*.video.qq.com = server:system
+*.gtimg.cn = server:system
+*.qpic.cn = server:system
+*.qlogo.cn = server:system
+*.myqcloud.com = server:system
+*.tdm.qq.com = server:system
+*.mdt.qq.com = server:system
+*.trace.qq.com = server:system
+*.crashsight.qq.com = server:system
+*.perfsight.qq.com = server:system
+*.tpns.sh.tencent.com = server:system
+*.warsongmobile.com = server:system
