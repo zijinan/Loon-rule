@@ -1,0 +1,36 @@
+#!name=PH 分流净化
+#!desc=基于抓包提取：主站与视频 CDN 走代理，拦截广告统计链路，并注入轻量 CSS 隐藏页面广告位。公开安全版，不含任何节点/订阅信息。
+#!author=zijinan / ChatGPT
+#!homepage=https://github.com/zijinan/Loon-rule
+#!icon=https://raw.githubusercontent.com/Orz-3/mini/master/Color/Global.png
+
+[Rule]
+# 主站与视频 CDN：走主配置里的美国手动策略
+DOMAIN-SUFFIX,pornhub.com,美国手动策略
+DOMAIN-SUFFIX,pornhubpremium.com,美国手动策略
+DOMAIN-SUFFIX,phncdn.com,美国手动策略
+
+# 抓包命中的广告/统计链路：拒绝
+DOMAIN-SUFFIX,trafficjunky.net,REJECT
+DOMAIN-SUFFIX,trafficjunky.com,REJECT
+DOMAIN-SUFFIX,dzhjmp.com,REJECT
+DOMAIN-SUFFIX,adtng.com,REJECT
+DOMAIN-SUFFIX,brazztrk.com,REJECT
+DOMAIN,static.trafficjunky.com,REJECT
+DOMAIN,ads.trafficjunky.net,REJECT
+DOMAIN,pix-ht.trafficjunky.net,REJECT
+DOMAIN,pix-cdn77.trafficjunky.net,REJECT
+
+[Rewrite]
+^https?:\/\/[^\/]+\.pornhub\.com\/_xa\/ads(?:_batch)?\?.* url reject-dict
+^https?:\/\/[^\/]+\.pornhub\.com\/embeddedads\/?..* url reject-dict
+^https?:\/\/ads\.trafficjunky\.net\/.* url reject-dict
+^https?:\/\/.*\.trafficjunky\.(?:net|com)\/.* url reject-dict
+^https?:\/\/.*\.dzhjmp\.com\/.* url reject-dict
+^https?:\/\/.*\.adtng\.com\/.* url reject-dict
+
+[Script]
+http-response ^https?:\/\/(?:[\w-]+\.)?pornhub\.com\/(?:$|view_video\.php|video\/|model\/|pornstar\/|categories|channels|search|recommended) requires-body=true, timeout=10, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/ph-cleaner.js, tag=PH HTML Cleaner
+
+[Mitm]
+hostname = *.pornhub.com,cn.pornhub.com,www.pornhub.com,ads.trafficjunky.net,*.trafficjunky.net,*.trafficjunky.com,*.dzhjmp.com,*.adtng.com
