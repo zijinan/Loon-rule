@@ -1,0 +1,11 @@
+# NAME: PH Divert
+# AUTHOR: zijinan / ChatGPT
+# UPDATED: 2026-05-25
+# DESCRIPTION: PH 主站与视频 CDN 分流规则。只做分流，不包含 Rewrite、Script、MITM、广告拦截，优先保证视频播放稳定。
+
+DOMAIN-SUFFIX,pornhub.com
+DOMAIN-SUFFIX,pornhubpremium.com
+DOMAIN-SUFFIX,phncdn.com
+DOMAIN-SUFFIX,phprcdn.com
+DOMAIN-SUFFIX,phncdn.net
+DOMAIN-SUFFIX,phncdn.org
