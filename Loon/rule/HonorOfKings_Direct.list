@@ -2,7 +2,7 @@
 # AUTHOR: zijinan / ChatGPT
 # DESC: Honor of Kings / Tencent domestic game DIRECT rule list migrated from the old plugin.
 # SECURITY: Rule-only list. No plugin, no script, no rewrite, no MITM, no Host section, no server:system DNS override.
-# USAGE: Add as Remote Rule with policy=DIRECT or policy=国内游戏策略.
+# USAGE: Add as Remote Rule with policy=DIRECT.
 
 # GCloud / Tencent game cloud / config / CDN
 DOMAIN-SUFFIX,gcloudcs.com
@@ -28,6 +28,7 @@ DOMAIN-KEYWORD,legopic
 DOMAIN-SUFFIX,anticheatexpert.com
 DOMAIN-SUFFIX,cschannel.anticheatexpert.com
 DOMAIN,nj.cschannel.anticheatexpert.com
+DOMAIN,down.anticheatexpert.com
 
 # Honor of Kings / SMOBA official paths
 DOMAIN-SUFFIX,smoba.qq.com
