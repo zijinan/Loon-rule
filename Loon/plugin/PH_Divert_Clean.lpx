@@ -1,34 +1,24 @@
-#!name=PH 分流净化
-#!desc=播放优先版：主站与视频 CDN 走插件内部 PROXY，可在插件页把 PROXY 指向任意当前配置策略；仅拦截独立广告/统计域名，不改写视频页 HTML，避免点开视频一直转圈。公开安全版，不含任何节点/订阅信息。
+#!name=PH 纯分流保播放
+#!desc=排障版：只做主站与视频 CDN 分流，全部走插件内部 PROXY；不拦广告、不 Rewrite、不 Script、不 MITM，优先保证视频播放不转圈。公开安全版，不含任何节点/订阅信息。
 #!author=zijinan / ChatGPT
 #!homepage=https://github.com/zijinan/Loon-rule
 #!icon=https://raw.githubusercontent.com/Orz-3/mini/master/Color/Global.png
 
 [Rule]
 # 主站与视频 CDN：走插件内部 PROXY。
-# 安装后在插件详情页“代理指向的策略”里把 PROXY 指向你的美国节点/美国策略/全局策略。
+# 安装后在插件详情页“代理指向的策略”里把 PROXY 指向可正常访问视频 CDN 的美国节点/全局策略。
 DOMAIN-SUFFIX,pornhub.com,PROXY
 DOMAIN-SUFFIX,pornhubpremium.com,PROXY
 DOMAIN-SUFFIX,phncdn.com,PROXY
+DOMAIN-SUFFIX,phprcdn.com,PROXY
+DOMAIN-SUFFIX,phncdn.net,PROXY
+DOMAIN-SUFFIX,phncdn.org,PROXY
 
-# 播放优先：只拒绝独立广告/统计域名，不拦截 pornhub 站内 /_xa/ads，避免播放器等待广告接口导致转圈。
-DOMAIN-SUFFIX,trafficjunky.net,REJECT
-DOMAIN-SUFFIX,trafficjunky.com,REJECT
-DOMAIN-SUFFIX,dzhjmp.com,REJECT
-DOMAIN-SUFFIX,adtng.com,REJECT
-DOMAIN-SUFFIX,brazztrk.com,REJECT
-DOMAIN,static.trafficjunky.com,REJECT
-DOMAIN,ads.trafficjunky.net,REJECT
-DOMAIN,pix-ht.trafficjunky.net,REJECT
-DOMAIN,pix-cdn77.trafficjunky.net,REJECT
+# 排障版不拦广告域名。等确认可以播放后，再逐条加回广告拦截。
 
 [Rewrite]
-# 播放优先版暂不启用站内广告接口 reject，也不改写视频页 HTML。
-# 原因：抓包显示视频页含正常 HLS master.m3u8，但点开后未继续请求分片，说明播放器初始化可能被站内广告接口 reject 或 HTML 注入影响。
 
 [Script]
-# 保留为空，避免改写播放器配置。
 
 [Mitm]
-# 只 MITM 独立广告域名；不 MITM pornhub.com，减少视频页播放器被改写导致转圈的风险。
-hostname = ads.trafficjunky.net,*.trafficjunky.net,*.trafficjunky.com,*.dzhjmp.com,*.adtng.com
+hostname =
