@@ -1,0 +1,41 @@
+# NAME: HonorOfKings_Direct
+# AUTHOR: local public template
+# DESC: Honor of Kings / Tencent domestic game DIRECT rule list. Use with policy=DIRECT or 国内游戏策略.
+# SECURITY: No script, rewrite, MITM, ad removal, token, node, or certificate content.
+
+# Honor of Kings official, game, config, update, telemetry, and CDN.
+DOMAIN-SUFFIX,pvp.qq.com
+DOMAIN-SUFFIX,smoba.qq.com
+DOMAIN-SUFFIX,game.qq.com
+DOMAIN-SUFFIX,tencentgames.com
+DOMAIN-SUFFIX,ieg.tencent.com
+DOMAIN-SUFFIX,msdk.qq.com
+DOMAIN-SUFFIX,gcloud.qq.com
+DOMAIN-SUFFIX,gcloudcs.com
+DOMAIN-SUFFIX,gvoice.qq.com
+DOMAIN-SUFFIX,gvoice.tencent.com
+DOMAIN-SUFFIX,wetest.qq.com
+DOMAIN-SUFFIX,bugly.qq.com
+DOMAIN-SUFFIX,report.qq.com
+DOMAIN-SUFFIX,pingma.qq.com
+DOMAIN-SUFFIX,beacon.qq.com
+DOMAIN-SUFFIX,log.tbs.qq.com
+DOMAIN-SUFFIX,midas.qq.com
+DOMAIN-SUFFIX,unipay.qq.com
+DOMAIN-SUFFIX,pay.qq.com
+DOMAIN-SUFFIX,myapp.com
+DOMAIN-SUFFIX,gtimg.com
+DOMAIN-SUFFIX,gtimg.cn
+DOMAIN-SUFFIX,idqqimg.com
+DOMAIN-SUFFIX,qlogo.cn
+DOMAIN-SUFFIX,qpic.cn
+DOMAIN-SUFFIX,qq.com
+DOMAIN-SUFFIX,tencent.com
+DOMAIN-SUFFIX,tencent-cloud.com
+DOMAIN-SUFFIX,tencent-cloud.net
+DOMAIN-SUFFIX,qcloud.com
+DOMAIN-SUFFIX,myqcloud.com
+DOMAIN-KEYWORD,smoba
+DOMAIN-KEYWORD,sgame
+DOMAIN-KEYWORD,honorofkings
+DOMAIN-KEYWORD,hok
