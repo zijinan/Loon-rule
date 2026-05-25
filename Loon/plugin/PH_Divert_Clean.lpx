@@ -1,14 +1,19 @@
 #!name=PH 分流净化
-#!desc=基于抓包提取：主站与视频 CDN 走代理，拦截广告统计链路，并注入轻量 CSS 隐藏页面广告位。公开安全版，不含任何节点/订阅信息。
+#!desc=基于抓包提取：主站与视频 CDN 走可选 PH 策略，拦截广告统计链路，并注入轻量 CSS 隐藏页面广告位。公开安全版，不含任何节点/订阅信息。
 #!author=zijinan / ChatGPT
 #!homepage=https://github.com/zijinan/Loon-rule
 #!icon=https://raw.githubusercontent.com/Orz-3/mini/master/Color/Global.png
 
+[Proxy Group]
+# 可在 Loon 策略组里单独选择 PH 走哪个策略。
+# 这些选项来自你的主配置；若某个策略不存在，Loon 会忽略或显示不可用，保留常用项方便切换。
+PH策略 = select,美国手动策略,美国自动场景,美国自动策略,全球手动场景,全球自动场景,全球手动策略,兜底场景,DIRECT,img-url = https://raw.githubusercontent.com/Orz-3/mini/master/Color/Global.png
+
 [Rule]
-# 主站与视频 CDN：走主配置里的美国手动策略
-DOMAIN-SUFFIX,pornhub.com,美国手动策略
-DOMAIN-SUFFIX,pornhubpremium.com,美国手动策略
-DOMAIN-SUFFIX,phncdn.com,美国手动策略
+# 主站与视频 CDN：走可手动选择的 PH策略
+DOMAIN-SUFFIX,pornhub.com,PH策略
+DOMAIN-SUFFIX,pornhubpremium.com,PH策略
+DOMAIN-SUFFIX,phncdn.com,PH策略
 
 # 抓包命中的广告/统计链路：拒绝
 DOMAIN-SUFFIX,trafficjunky.net,REJECT
