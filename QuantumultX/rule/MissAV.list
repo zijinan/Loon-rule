@@ -1,0 +1,31 @@
+# NAME: MissAV
+# AUTHOR: zijinan
+# REPO: https://github.com/zijinan/Loon-rule
+# UPDATED: 2026-05-26
+# FORMAT: Quantumult X / QX
+# DESC: MissAV 主站、视频 CDN、封面预览、推荐接口走 PROXY；常见广告/跳转域名 REJECT。
+
+# MissAV main sites
+HOST-SUFFIX,missav.ws,PROXY
+HOST-SUFFIX,missav.live,PROXY
+HOST-SUFFIX,missav.ai,PROXY
+HOST-SUFFIX,missav.com,PROXY
+
+# MissAV video / image / preview CDN
+HOST-SUFFIX,surrit.com,PROXY
+HOST-SUFFIX,fourhoi.com,PROXY
+
+# MissAV recommendation API
+HOST,client-rapi-missav.recombee.com,PROXY
+HOST-SUFFIX,recombee.com,PROXY
+
+# Optional Cloudflare verification helper.
+# Enable only if Cloudflare verification loops.
+# HOST-SUFFIX,cloudflare.com,PROXY
+
+# Ads / redirect / tracking
+HOST-SUFFIX,tsyndicate.com,REJECT
+HOST-SUFFIX,rallytrck.website,REJECT
+HOST-SUFFIX,bluetrafficstream.com,REJECT
+HOST-SUFFIX,myavlive.com,REJECT
+HOST-SUFFIX,keepshare.org,REJECT
