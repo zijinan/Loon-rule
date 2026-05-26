@@ -13,6 +13,12 @@ const jsonScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tenc
 const iaccScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_iacc_ad.js"), "utf8");
 const conf = fs.readFileSync(path.join(repoRoot, "QuantumultX/rewrite/TencentVideo-Safe.conf"), "utf8");
 
+const iaccRejectFiles = [
+  "QuantumultX/QuanX.conf",
+  "QuantumultX/config/QuanX_Optimized.conf",
+  "QuantumultX/rule/Ads-Reject.list"
+];
+
 const requestUrls = /^https:\/\/(i\.video\.qq\.com\/|disp-qryapi\.3g\.qq\.com\/v1\/dispatch|(?:vv|vv6)\.video\.qq\.com\/getvinfo)/;
 
 const expectedMitmHosts = [
@@ -377,6 +383,19 @@ const issues = [];
 
 if (stats.rejectRules !== 0) {
   issues.push({ type: "config.rejectRules", sample: "TencentVideo-Safe.conf", detail: `${stats.rejectRules} reject rules found` });
+}
+
+for (const relativeFile of iaccRejectFiles) {
+  const file = path.join(repoRoot, relativeFile);
+  if (!fs.existsSync(file)) continue;
+  const text = fs.readFileSync(file, "utf8");
+  if (/iacc(?:\.rec)?\.qq\.com.*(?:REJECT|reject)/i.test(text)) {
+    issues.push({
+      type: "config.iaccRejectConflict",
+      sample: relativeFile,
+      detail: "iacc hosts must be rewritten by TencentVideo-Safe.conf, not rejected"
+    });
+  }
 }
 
 if (/disp-qryapi\\.3g\\.qq\\.com.*script-response-body/.test(conf)) {
