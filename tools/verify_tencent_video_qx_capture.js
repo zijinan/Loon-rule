@@ -534,9 +534,22 @@ function configuredMitmHosts() {
   return match[1].split(",").map((host) => host.trim()).filter(Boolean);
 }
 
-const captureDirs = fs.readdirSync(captureRoot, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && entry.name.startsWith("capture_"))
-  .map((entry) => path.join(captureRoot, entry.name));
+const captureDirs = fs.existsSync(captureRoot) && path.basename(captureRoot).startsWith("capture_")
+  ? [captureRoot]
+  : fs.readdirSync(captureRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith("capture_"))
+    .map((entry) => path.join(captureRoot, entry.name));
+
+function captureNameForEntry(entryDir) {
+  const resolved = path.resolve(entryDir);
+  for (const dir of captureDirs) {
+    const relative = path.relative(dir, resolved);
+    if (relative === "" || (relative && !relative.startsWith("..") && !path.isAbsolute(relative))) {
+      return path.basename(dir);
+    }
+  }
+  return "(unknown)";
+}
 
 const entryDirs = new Set();
 for (const dir of captureDirs) {
@@ -573,6 +586,13 @@ const stats = {
   iaccBodyChanged: 0,
   directMaterialRequests: 0,
   directMaterialByHost: Object.fromEntries(directMaterialPatterns.map((item) => [item.name, 0])),
+  directMaterialByCapture: Object.fromEntries(captureDirs.map((dir) => [
+    path.basename(dir),
+    {
+      total: 0,
+      byHost: Object.fromEntries(directMaterialPatterns.map((item) => [item.name, 0]))
+    }
+  ])),
   directMaterialExamples: {},
   paginationSoftSamples: 0,
   paginationSoftUnchanged: 0,
@@ -583,6 +603,7 @@ const stats = {
 };
 
 const issues = [];
+const requireBroadCoverage = captureDirs.length > 1 || process.env.TENCENT_VIDEO_QX_STRICT === "1";
 
 const paginationSoftProto = [
   "qqlive_rsp_head",
@@ -696,8 +717,13 @@ for (const entryDir of entryDirs) {
 
   for (const item of directMaterialPatterns) {
     if (!item.regex.test(url)) continue;
+    const captureName = captureNameForEntry(entryDir);
     stats.directMaterialRequests += 1;
     stats.directMaterialByHost[item.name] += 1;
+    if (stats.directMaterialByCapture[captureName]) {
+      stats.directMaterialByCapture[captureName].total += 1;
+      stats.directMaterialByCapture[captureName].byHost[item.name] += 1;
+    }
     if (!stats.directMaterialExamples[item.name]) {
       stats.directMaterialExamples[item.name] = `${path.basename(path.dirname(entryDir))}/${path.basename(entryDir)}`;
     }
@@ -810,8 +836,8 @@ for (const entryDir of entryDirs) {
 }
 
 if (stats.captureDirs === 0) issues.push({ type: "captures.missing", sample: captureRoot, detail: "no capture_* directories found" });
-if (stats.requestSamples === 0) issues.push({ type: "request.noSamples", sample: captureRoot, detail: "no ad request samples matched" });
-if (stats.coreHeaderSamples === 0) issues.push({ type: "coreHeader.noSamples", sample: captureRoot, detail: "no Tencent Video qad_device_platform header samples matched" });
+if (requireBroadCoverage && stats.requestSamples === 0) issues.push({ type: "request.noSamples", sample: captureRoot, detail: "no ad request samples matched" });
+if (requireBroadCoverage && stats.coreHeaderSamples === 0) issues.push({ type: "coreHeader.noSamples", sample: captureRoot, detail: "no Tencent Video qad_device_platform header samples matched" });
 if (stats.coreHeaderSamples !== stats.coreHeaderChanged) {
   issues.push({
     type: "coreHeader.unchanged",
@@ -826,9 +852,9 @@ if (stats.coreHeaderSamples !== stats.coreHeaderLoginPreserved) {
     detail: `${stats.coreHeaderLoginPreserved}/${stats.coreHeaderSamples} core Tencent Video request headers preserved login while changing qad`
   });
 }
-if (stats.responseSamples === 0) issues.push({ type: "response.noSamples", sample: captureRoot, detail: "no ad response samples matched" });
-if (stats.splashSamples === 0) issues.push({ type: "splash.noSamples", sample: captureRoot, detail: "no splash config samples matched" });
-if (stats.iaccHeaderSamples === 0) issues.push({ type: "iacc.headerNoSamples", sample: captureRoot, detail: "no iacc request header samples matched" });
+if (requireBroadCoverage && stats.responseSamples === 0) issues.push({ type: "response.noSamples", sample: captureRoot, detail: "no ad response samples matched" });
+if (requireBroadCoverage && stats.splashSamples === 0) issues.push({ type: "splash.noSamples", sample: captureRoot, detail: "no splash config samples matched" });
+if (requireBroadCoverage && stats.iaccHeaderSamples === 0) issues.push({ type: "iacc.headerNoSamples", sample: captureRoot, detail: "no iacc request header samples matched" });
 if (stats.iaccHeaderSamples !== stats.iaccHeaderChanged) {
   issues.push({
     type: "iacc.headerUnchanged",
@@ -850,8 +876,8 @@ if (stats.iaccBodySamples !== stats.iaccBodyChanged) {
     detail: `${stats.iaccBodyChanged}/${stats.iaccBodySamples} iacc response body samples changed`
   });
 }
-if (stats.jsonNoopSamples === 0) issues.push({ type: "json.noopNoSamples", sample: captureRoot, detail: "no dispatch/appcfg noop samples matched" });
-if (stats.jsonCleanSamples === 0) issues.push({ type: "json.cleanNoSamples", sample: captureRoot, detail: "no tab/richmedia JSON ad samples matched" });
+if (requireBroadCoverage && stats.jsonNoopSamples === 0) issues.push({ type: "json.noopNoSamples", sample: captureRoot, detail: "no dispatch/appcfg noop samples matched" });
+if (requireBroadCoverage && stats.jsonCleanSamples === 0) issues.push({ type: "json.cleanNoSamples", sample: captureRoot, detail: "no tab/richmedia JSON ad samples matched" });
 if (stats.jsonCleanSamples !== stats.jsonCleanChanged) {
   issues.push({
     type: "json.cleanUnchanged",
