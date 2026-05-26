@@ -31,6 +31,17 @@ HOST-SUFFIX,qcloud.com
 HOST-SUFFIX,myqcloud.com
 HOST-SUFFIX,tencent-cloud.com
 HOST-SUFFIX,tencent-cloud.net
+HOST-SUFFIX,myapp.com
+HOST-SUFFIX,wegame.com
+HOST-SUFFIX,wegame.com.cn
+HOST-SUFFIX,gcloudcs.com
+HOST-SUFFIX,gcloud.qq.com
+HOST-SUFFIX,gcloudsdk.com
+HOST-SUFFIX,msdkconnect.com
+HOST-SUFFIX,tencentmind.com
+HOST-SUFFIX,cdn-go.cn
+HOST-SUFFIX,tdnsv6.com
+HOST-SUFFIX,legopic1-dk.tdnsv6.com
 HOST-KEYWORD,weixin
 HOST-KEYWORD,wechat
 
@@ -48,6 +59,7 @@ HOST-SUFFIX,amap.com
 HOST-SUFFIX,autonavi.com
 HOST-SUFFIX,bdstatic.com
 HOST-SUFFIX,baidu.com
+HOST-SUFFIX,lepudding.com
 
 # BiliBili.
 HOST-SUFFIX,bilibili.com

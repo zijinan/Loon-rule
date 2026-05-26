@@ -10,5 +10,7 @@ HOST-SUFFIX,anthropic.com
 HOST-SUFFIX,claude.ai
 HOST,gemini.google.com
 HOST-SUFFIX,generativelanguage.googleapis.com
+HOST-SUFFIX,aistudio.google.com
+HOST-SUFFIX,makersuite.google.com
 HOST-SUFFIX,perplexity.ai
 HOST-SUFFIX,pplx.ai

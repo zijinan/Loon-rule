@@ -16,12 +16,20 @@ HOST-SUFFIX,myqcloud.com
 HOST-SUFFIX,tencent-cloud.com
 HOST-SUFFIX,tencent-cloud.net
 HOST,game.qq.com
+HOST-SUFFIX,game.qq.com
 HOST-SUFFIX,iegcom.com
 HOST,gcloud.qq.com
+HOST-SUFFIX,gcloud.qq.com
 HOST-SUFFIX,gcloudsdk.com
 HOST,msdk.qq.com
 HOST-SUFFIX,msdkconnect.com
 HOST,ied-tqos.qq.com
+HOST-SUFFIX,myapp.com
+HOST-SUFFIX,wegame.com
+HOST-SUFFIX,wegame.com.cn
+HOST-SUFFIX,tencentmind.com
+HOST-SUFFIX,intlgame.com
+HOST-SUFFIX,cdn-go.cn
 
 # GCloud / Tencent game cloud / config / CDN.
 HOST-SUFFIX,gcloudcs.com
@@ -36,6 +44,7 @@ HOST,cloudctrl.gcloud.qq.com
 # Tencent CDN scheduler / TDN generated domains.
 HOST,tiem-cdn.qq.com
 HOST-SUFFIX,tdnsv6.com
+HOST-SUFFIX,legopic1-dk.tdnsv6.com
 HOST-SUFFIX,tdnsv5.com
 HOST-SUFFIX,tdnsv4.com
 HOST-KEYWORD,tiem-cdn
@@ -53,7 +62,6 @@ HOST,measurement.tj.prod.smoba.qq.com
 HOST-SUFFIX,pvp.qq.com
 HOST-SUFFIX,tencentgames.com
 HOST-SUFFIX,ieg.tencent.com
-HOST-SUFFIX,myapp.com
 HOST-KEYWORD,smoba
 HOST-KEYWORD,sgame
 HOST-KEYWORD,honorofkings
