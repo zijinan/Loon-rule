@@ -9,6 +9,33 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 
+WORKER_HOST = "tencent-video-bridge.zijinan20000.workers.dev"
+
+TARGET_HOSTS = {
+    "i.video.qq.com",
+    "xs.gdt.qq.com",
+    "isrpt-vn.gdt.qq.com",
+    "isrpt-in.gdt.qq.com",
+    "rpt.gdt.qq.com",
+    "vr.gdt.qq.com",
+    "v3.gdt.qq.com",
+    "c.gdt.qq.com",
+    "c3.gdt.qq.com",
+    "nc.gdt.qq.com",
+    "pgdt.gtimg.cn",
+    "iacc.qq.com",
+    "iacc.rec.qq.com",
+    "sdkreport.e.qq.com",
+    "review.gdtimg.com",
+    "config.ab.qq.com",
+    "tab.video.qq.com",
+    "rdelivery.qq.com",
+    "playproxy.video.qq.com",
+    "appcfg.v.qq.com",
+    "iwan.video.qq.com",
+}
+
+
 def parse_headers(path):
     headers = {}
     if not path.exists():
@@ -50,6 +77,16 @@ def request_payload(entry):
     }
 
 
+def worker_bridge_payload(entry):
+    try:
+        payload = json.loads((entry / "request_body_raw").read_text("utf-8", errors="replace"))
+    except Exception:
+        return None
+    if not isinstance(payload, dict) or "url" not in payload:
+        return None
+    return payload
+
+
 def main():
     if len(sys.argv) != 3:
         print("usage: verify_tencent_video_worker_capture.py <capture_dir> <worker_js>", file=sys.stderr)
@@ -61,23 +98,11 @@ def main():
     for entry in sorted(path for path in capture_dir.iterdir() if path.is_dir()):
         url = request_url(entry)
         host = urlparse(url).netloc
-        if host in {
-            "i.video.qq.com",
-            "xs.gdt.qq.com",
-            "isrpt-vn.gdt.qq.com",
-            "pgdt.gtimg.cn",
-            "extshort.weixin.qq.com",
-            "minorshort.weixin.qq.com",
-            "wzq.tenpay.com",
-            "wzqcf.gtimg.com",
-            "proxy.finance.qq.com",
-            "config.ab.qq.com",
-            "tab.video.qq.com",
-            "rdelivery.qq.com",
-            "playproxy.video.qq.com",
-            "appcfg.v.qq.com",
-            "iwan.video.qq.com",
-        }:
+        if host == WORKER_HOST:
+            payload = worker_bridge_payload(entry)
+            if payload and urlparse(payload.get("url", "")).netloc in TARGET_HOSTS:
+                samples.append({"id": entry.name, "payload": payload})
+        elif host in TARGET_HOSTS:
             samples.append({"id": entry.name, "payload": request_payload(entry)})
 
     node_code = r"""
