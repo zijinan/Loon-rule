@@ -31,6 +31,14 @@ function replaceLiteral(source, needle, replacement) {
   return source.split(needle).join(replacement);
 }
 
+function replaceRegexStable(source, regex, replacer) {
+  if (!source) return source;
+  return source.replace(regex, (match) => {
+    const replacement = replacer(match);
+    return replacement.length === match.length ? replacement : match;
+  });
+}
+
 const JSON_EMPTY_KEYS = new Set([
   "ad",
   "ads",
@@ -282,8 +290,7 @@ try {
             ["adgroup", "xxgroup"],
             ["adtype", "xxtype"],
             ["ad.vipinfo", "xx.vipinfo"],
-            ["ad_", "xx_"],
-            ["ads_", "xxs_"],
+            ["_ad_insert_mix_block", "_xx_insert_mix_block"],
             ["ad_focus", "xx_focus"],
             ["ad_block", "xx_block"],
             ["ad_action_type", "xx_action_type"],
@@ -301,6 +308,10 @@ try {
             ["gdt_vid", "xxx_vid"],
             ["qz_gdt", "qz_xxx"],
             ["jump_add_extra_info", "jump_xxx_extra_info"],
+            ["rerank_ad_info", "rerank_xx_info"],
+            ["is_locked_ad", "is_locked_xx"],
+            ["is_converted_native_ad", "is_converted_native_xx"],
+            ["ad_nfb_none_view", "xx_nfb_none_view"],
             ["content_type_ad", "content_type_xx"],
             ["select_ad_type", "select_xx_type"],
             ["fromAd", "fromXx"],
@@ -346,6 +357,9 @@ try {
           for (const [needle, replacement] of swaps) {
             rewritten = replaceLiteral(rewritten, needle, replacement);
           }
+
+          rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ad_/g, (match) => `${match.slice(0, -3)}xx_`);
+          rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ads_/g, (match) => `${match.slice(0, -4)}xxs_`);
 
           if (rewritten !== body) output = rewritten;
         }
