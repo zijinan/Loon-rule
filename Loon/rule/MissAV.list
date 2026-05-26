@@ -1,0 +1,30 @@
+# NAME: MissAV
+# AUTHOR: zijinan
+# REPO: https://github.com/zijinan/Loon-rule
+# UPDATED: 2026-05-26
+# DESC: MissAV 主站、视频 CDN、封面预览、推荐接口走代理；常见广告/跳转域名拒绝。
+
+# MissAV main sites
+DOMAIN-SUFFIX,missav.ws
+DOMAIN-SUFFIX,missav.live
+DOMAIN-SUFFIX,missav.ai
+DOMAIN-SUFFIX,missav.com
+
+# MissAV video / image / preview CDN
+DOMAIN-SUFFIX,surrit.com
+DOMAIN-SUFFIX,fourhoi.com
+
+# MissAV recommendation API
+DOMAIN,client-rapi-missav.recombee.com
+DOMAIN-SUFFIX,recombee.com
+
+# Optional Cloudflare verification helper.
+# Enable only if Cloudflare verification loops.
+# DOMAIN-SUFFIX,cloudflare.com
+
+# Ads / redirect / tracking
+DOMAIN-SUFFIX,tsyndicate.com,REJECT
+DOMAIN-SUFFIX,rallytrck.website,REJECT
+DOMAIN-SUFFIX,bluetrafficstream.com,REJECT
+DOMAIN-SUFFIX,myavlive.com,REJECT
+DOMAIN-SUFFIX,keepshare.org,REJECT
