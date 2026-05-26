@@ -1,0 +1,52 @@
+#!name= Tencent Video Safe AdBlock
+#!desc= Low-power Tencent Video ad cleaner for Loon. Request-stage script only, with rule/rewrite blocking for GDT materials, splash/loading assets, telemetry, and known ad config endpoints.
+#!author= zijinan
+#!homepage= https://github.com/zijinan/Loon-rule
+#!date= 2026-05-26
+#!risk= medium-high
+
+[Rule]
+DOMAIN,pgdt.gtimg.cn,REJECT
+DOMAIN,adsmind.gdtimg.com,REJECT
+DOMAIN,gdt.gtimg.cn,REJECT
+DOMAIN,vr.gdt.qq.com,REJECT
+DOMAIN,nc.gdt.qq.com,REJECT
+DOMAIN,h5.gdt.qq.com,REJECT
+DOMAIN,dp3.qq.com,REJECT
+DOMAIN,v3.gdt.qq.com,REJECT
+DOMAIN,sdkreport.e.qq.com,REJECT
+DOMAIN,info4.video.qq.com,REJECT
+DOMAIN,info6.video.qq.com,REJECT
+DOMAIN,h.trace.qq.com,REJECT
+DOMAIN,trace.inlong.qq.com,REJECT
+DOMAIN,aegis.qq.com,REJECT
+DOMAIN,szmg.qq.com,REJECT
+DOMAIN,hc.tdm.qq.com,REJECT
+DOMAIN,receiver.tdm.qq.com,REJECT
+DOMAIN,iacc.qq.com,REJECT
+DOMAIN,iacc.rec.qq.com,REJECT
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,gdtimg.com,REJECT
+DOMAIN-SUFFIX,l.qq.com,REJECT
+DOMAIN-SUFFIX,snowflake.qq.com,REJECT
+
+[Rewrite]
+^https?:\/\/(?:config\.ab\.qq\.com|tab\.video\.qq\.com)\/tab\/GetTabRemoteConfig - reject-dict
+^https?:\/\/config\.ab\.qq\.com\/tab\/GetTabToggle - reject-dict
+^https?:\/\/appcfg\.v\.qq\.com\/getconf - reject-dict
+^https?:\/\/rdelivery\.qq\.com\/(?:v3\/config\/pull|v1\/sdkconfig\/get|v1\/statistic\/report) - reject-dict
+^https?:\/\/playproxy\.video\.qq\.com\/monet\/comm_resource\/get - reject-dict
+^https?:\/\/iwan\.video\.qq\.com\/trpc\.vgopen\.mini_game_detail\.MiniGameDetail\/GetPreloadGames - reject-dict
+^https?:\/\/vfiles\.gtimg\.cn\/wupload\/ad_control_config_test\.ad_copy_pic_url_conf\/ - reject
+^https?:\/\/vfiles\.gtimg\.cn\/wupload\/xy\/promotionTest\/ - reject
+^https?:\/\/vip\.image\.video\.qpic\.cn\/wupload\/xy\/promotionTest\/ - reject
+^https?:\/\/i\.gtimg\.cn\/qqlive\/images\/20170912\/enter_gray\.png - reject
+^https?:\/\/dldir1\.qq\.com\/qqmi\/video_ad\/ - reject
+^https?:\/\/(?:vv|vv6)\.video\.qq\.com\/(?:diff|get)vmind - reject-dict
+
+[Script]
+http-request ^https?:\/\/i\.video\.qq\.com\/?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.safe.js, tag=TencentVideo-Request-Clean, requires-body=true, binary-body-mode=true, timeout=8, enable=true
+http-request ^https?:\/\/(?:vv|vv6)\.video\.qq\.com\/getvinfo script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.safe.js, tag=TencentVideo-GetVInfo-Clean, requires-body=true, timeout=8, enable=true
+
+[MITM]
+hostname = i.video.qq.com, vv.video.qq.com, vv6.video.qq.com, rdelivery.qq.com, appcfg.v.qq.com, tab.video.qq.com, config.ab.qq.com, playproxy.video.qq.com, iwan.video.qq.com, vfiles.gtimg.cn, vip.image.video.qpic.cn, i.gtimg.cn, dldir1.qq.com
