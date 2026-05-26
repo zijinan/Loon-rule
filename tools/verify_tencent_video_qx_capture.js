@@ -11,6 +11,7 @@ const requestScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/t
 const responseScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_proto_ad.js"), "utf8");
 const jsonScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_ad.js"), "utf8");
 const iaccScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_iacc_ad.js"), "utf8");
+const headerScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_header_ad.js"), "utf8");
 const conf = fs.readFileSync(path.join(repoRoot, "QuantumultX/rewrite/TencentVideo-Safe.conf"), "utf8");
 
 const iaccRejectFiles = [
@@ -25,6 +26,7 @@ const qxProfileFiles = [
 ];
 
 const requestUrls = /^https:\/\/(i\.video\.qq\.com\/|disp-qryapi\.3g\.qq\.com\/v1\/dispatch|(?:vv|vv6)\.video\.qq\.com\/getvinfo)/;
+const coreHeaderUrls = /^https:\/\/(i\.video\.qq\.com\/|(?:vv|vv6)\.video\.qq\.com\/getvinfo|(?:tab\.video|config\.ab)\.qq\.com\/tab\/GetTabRemoteConfig|richmedia\.video\.qq\.com\/get_rich_media_info)/;
 
 const expectedMitmHosts = [
   "i.video.qq.com",
@@ -226,9 +228,43 @@ function readTextIfExists(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
 }
 
+function readLatin1IfExists(file) {
+  return fs.existsSync(file) ? fs.readFileSync(file).toString("latin1") : "";
+}
+
+const wrapperCache = new Map();
+
+function requestWrapper(entryDir) {
+  if (wrapperCache.has(entryDir)) return wrapperCache.get(entryDir);
+  const file = path.join(entryDir, "request_body_raw");
+  if (!fs.existsSync(file)) {
+    wrapperCache.set(entryDir, undefined);
+    return undefined;
+  }
+
+  const text = readTextIfExists(file).trim();
+  if (!text.startsWith("{") || !text.includes('"bodyBase64"') || !text.includes('"url"')) {
+    wrapperCache.set(entryDir, undefined);
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed.url !== "string") throw new Error("missing url");
+    wrapperCache.set(entryDir, parsed);
+    return parsed;
+  } catch (_) {
+    wrapperCache.set(entryDir, undefined);
+    return undefined;
+  }
+}
+
 function requestUrl(entryDir) {
   const basic = path.join(entryDir, "basic");
   if (fs.existsSync(basic)) return readTextIfExists(basic).split(/\r?\n/)[0].trim();
+
+  const wrapper = requestWrapper(entryDir);
+  if (wrapper && wrapper.url) return wrapper.url;
 
   const rawHeaders = path.join(entryDir, "request_header_raw.txt");
   if (!fs.existsSync(rawHeaders)) return "";
@@ -248,15 +284,37 @@ function responseHeaders(entryDir) {
 }
 
 function requestHeaders(entryDir) {
+  const wrapper = requestWrapper(entryDir);
+  if (wrapper && wrapper.headers && typeof wrapper.headers === "object") {
+    const out = {};
+    for (const [key, value] of Object.entries(wrapper.headers)) {
+      out[String(key).toLowerCase()] = String(value || "");
+    }
+    return out;
+  }
+
   for (const name of ["request_headers", "request_header_raw.txt"]) {
     const file = path.join(entryDir, name);
     if (fs.existsSync(file)) return parseHeaders(readTextIfExists(file));
   }
+
   return {};
 }
 
 function body(entryDir, kind) {
-  const names = kind === "request" ? ["request_body", "request_body_raw"] : ["response_body", "response_body_raw"];
+  if (kind === "request") {
+    const file = path.join(entryDir, "request_body");
+    if (fs.existsSync(file)) return fs.readFileSync(file).toString("latin1");
+
+    const wrapper = requestWrapper(entryDir);
+    if (wrapper && typeof wrapper.bodyBase64 === "string") {
+      return Buffer.from(wrapper.bodyBase64, "base64").toString("latin1");
+    }
+
+    return readLatin1IfExists(path.join(entryDir, "request_body_raw"));
+  }
+
+  const names = ["response_body", "response_body_raw"];
   for (const name of names) {
     const file = path.join(entryDir, name);
     if (fs.existsSync(file)) return fs.readFileSync(file).toString("latin1");
@@ -304,6 +362,17 @@ function runIaccRequestHeader(url, headers) {
   vm.runInNewContext(iaccScript, {
     $request: { url, headers },
     $response: undefined,
+    $done: (value) => {
+      result = value || {};
+    }
+  }, { timeout: 1000 });
+  return result && result.headers ? result.headers : headers;
+}
+
+function runCoreRequestHeader(url, headers) {
+  let result;
+  vm.runInNewContext(headerScript, {
+    $request: { url, headers },
     $done: (value) => {
       result = value || {};
     }
@@ -375,7 +444,7 @@ const captureDirs = fs.readdirSync(captureRoot, { withFileTypes: true })
 const entryDirs = new Set();
 for (const dir of captureDirs) {
   for (const file of walk(dir)) {
-    if (/(?:request_body|response_body|request_header_raw\.txt|basic)$/.test(path.basename(file))) {
+    if (/(?:request_body|request_body_raw|response_body|response_body_raw|request_header_raw\.txt|basic)$/.test(path.basename(file))) {
       entryDirs.add(path.dirname(file));
     }
   }
@@ -387,6 +456,10 @@ const stats = {
   rejectRules: (conf.match(/\burl\s+reject/g) || []).length,
   requestSamples: 0,
   requestChanged: 0,
+  wrappedRequestEntries: 0,
+  coreHeaderSamples: 0,
+  coreHeaderChanged: 0,
+  coreHeaderLoginPreserved: 0,
   responseSamples: 0,
   responseChanged: 0,
   splashSamples: 0,
@@ -519,6 +592,26 @@ for (const entryDir of entryDirs) {
   const respBody = body(entryDir, "response");
   const reqHeaders = requestHeaders(entryDir);
   const headers = responseHeaders(entryDir);
+  if (requestWrapper(entryDir)) stats.wrappedRequestEntries += 1;
+
+  if (coreHeaderUrls.test(url)) {
+    const cookie = reqHeaders.cookie || "";
+    if (cookie.includes("qad_device_platform=5")) {
+      stats.coreHeaderSamples += 1;
+      const outHeaders = runCoreRequestHeader(url, reqHeaders);
+      const outCookie = outHeaders.cookie || "";
+      if (outCookie !== cookie) stats.coreHeaderChanged += 1;
+      if (!outCookie.includes("qad_device_platform=5") && outCookie.includes("qad_device_platform=0")) {
+        if (!cookie.includes("access_token=") || outCookie.includes("access_token=")) {
+          stats.coreHeaderLoginPreserved += 1;
+        } else {
+          addIssue(issues, "coreHeader.loginLost", entryDir, url);
+        }
+      } else {
+        addIssue(issues, "coreHeader.qadRemaining", entryDir, url);
+      }
+    }
+  }
 
   if (/^https?:\/\/iacc(?:\.rec)?\.qq\.com\//.test(url)) {
     const cookie = reqHeaders.cookie || "";
@@ -609,6 +702,21 @@ for (const entryDir of entryDirs) {
 
 if (stats.captureDirs === 0) issues.push({ type: "captures.missing", sample: captureRoot, detail: "no capture_* directories found" });
 if (stats.requestSamples === 0) issues.push({ type: "request.noSamples", sample: captureRoot, detail: "no ad request samples matched" });
+if (stats.coreHeaderSamples === 0) issues.push({ type: "coreHeader.noSamples", sample: captureRoot, detail: "no Tencent Video qad_device_platform header samples matched" });
+if (stats.coreHeaderSamples !== stats.coreHeaderChanged) {
+  issues.push({
+    type: "coreHeader.unchanged",
+    sample: captureRoot,
+    detail: `${stats.coreHeaderChanged}/${stats.coreHeaderSamples} core Tencent Video request header samples changed`
+  });
+}
+if (stats.coreHeaderSamples !== stats.coreHeaderLoginPreserved) {
+  issues.push({
+    type: "coreHeader.loginNotPreserved",
+    sample: captureRoot,
+    detail: `${stats.coreHeaderLoginPreserved}/${stats.coreHeaderSamples} core Tencent Video request headers preserved login while changing qad`
+  });
+}
 if (stats.responseSamples === 0) issues.push({ type: "response.noSamples", sample: captureRoot, detail: "no ad response samples matched" });
 if (stats.splashSamples === 0) issues.push({ type: "splash.noSamples", sample: captureRoot, detail: "no splash config samples matched" });
 if (stats.iaccHeaderSamples === 0) issues.push({ type: "iacc.headerNoSamples", sample: captureRoot, detail: "no iacc request header samples matched" });
