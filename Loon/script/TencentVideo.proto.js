@@ -8,10 +8,29 @@
 (function () {
   const MAX_BODY_SIZE = 1024 * 1024;
   const headers = ($response && $response.headers) || {};
-  const rawBody =
-    typeof $response.body !== "undefined" ? $response.body : $response.bodyBytes;
+  const rawBody = pickBody();
   const body = bodyToText(rawBody);
   let output;
+
+  function valueLength(value) {
+    if (!value) return 0;
+    if (typeof value === "string") return value.length;
+    if (typeof ArrayBuffer !== "undefined") {
+      if (value instanceof ArrayBuffer) return value.byteLength;
+      if (ArrayBuffer.isView && ArrayBuffer.isView(value)) return value.byteLength;
+    }
+    return typeof value.length === "number" ? value.length : 0;
+  }
+
+  function pickBody() {
+    const bodyBytes = $response && $response.bodyBytes;
+    if (valueLength(bodyBytes) > 0) return bodyBytes;
+
+    const bodyValue = $response && $response.body;
+    if (valueLength(bodyValue) > 0) return bodyValue;
+
+    return bodyBytes || bodyValue || "";
+  }
 
   function bytesToText(bytes) {
     let text = "";
@@ -65,7 +84,13 @@
           "ad.userinfo.vip",
           "vip_ad_promotion",
           "vip.image.video.qpic.cn/wupload/xy/promotiontest",
-          "vfiles.gtimg.cn/wupload/xy/promotiontest"
+          "vfiles.gtimg.cn/wupload/xy/promotiontest",
+          "xs.gdt.qq.com",
+          "extshort.weixin.qq.com",
+          "minorshort.weixin.qq.com",
+          "wzq.tenpay.com",
+          "wzqcf.gtimg.com",
+          "proxy.finance.qq.com"
         ];
 
         const materialMarkers = [
@@ -73,14 +98,16 @@
           "v3.gdt.qq.com/gdt_stats.fcg",
           "review.gdtimg.com/qzone/biz/gdt",
           "nc.gdt.qq.com/gdt_report.fcg",
+          "xs.gdt.qq.com",
+          "isrpt-vn.gdt.qq.com",
           "adfeedimageposter",
           "adfocusposter",
           "adfeedvideoposter"
         ];
 
-        const hasAdOnlyModule = body.length <= 64 * 1024 && adOnlyMarkers.some(function (x) { return text.includes(x); });
-        const hasSmallPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some(function (x) { return text.includes(x); });
-        const hasAdMaterial = materialMarkers.some(function (x) { return text.includes(x); });
+        const hasAdOnlyModule = body.length <= 64 * 1024 && adOnlyMarkers.some(function (x) { return text.includes(x.toLowerCase()); });
+        const hasSmallPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some(function (x) { return text.includes(x.toLowerCase()); });
+        const hasAdMaterial = materialMarkers.some(function (x) { return text.includes(x.toLowerCase()); });
         const hasTencentVideoProto = text.includes("qqlive_rsp_head") || text.includes("trpc.ovb_galaxy") || text.includes("trpc.access.video_access_app");
 
         if ((hasAdOnlyModule || hasSmallPromotionModule) && (hasAdMaterial || hasTencentVideoProto)) {

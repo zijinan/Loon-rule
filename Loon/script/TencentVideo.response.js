@@ -10,6 +10,7 @@
   const url = ($request && $request.url) || "";
   const body = ($response && $response.body) || "";
   const headers = ($response && $response.headers) || {};
+  let changed = false;
 
   function header(name) {
     const lower = name.toLowerCase();
@@ -76,6 +77,13 @@
     "gdt.qq.com",
     "e.qq.com",
     "sdkreport.e.qq.com",
+    "xs.gdt.qq.com",
+    "isrpt-vn.gdt.qq.com",
+    "extshort.weixin.qq.com",
+    "minorshort.weixin.qq.com",
+    "wzq.tenpay.com",
+    "wzqcf.gtimg.com",
+    "proxy.finance.qq.com",
     "iacc.qq.com",
     "iacc.rec.qq.com",
     "rdelivery.qq.com/v1/statistic/report",
@@ -86,7 +94,12 @@
     "pre_ad",
     "pause_ad",
     "adtype",
-    "advertisement"
+    "advertisement",
+    "ad.userinfo.vip",
+    "video_ad_ssp_feeds",
+    "serveradfeedsvideo",
+    "getpersonalcenteraddataj",
+    "getaddetailj"
   ];
 
   const KEEP_NEEDLES = [
@@ -128,6 +141,7 @@
         const item = value[i];
         if (isAdObject(item)) {
           value.splice(i, 1);
+          changed = true;
         } else {
           clean(item);
         }
@@ -141,6 +155,7 @@
 
       if (EXACT_EMPTY_KEYS.has(normalized) || EXACT_EMPTY_KEYS.has(compact) || AD_KEY_RE.test(normalized)) {
         value[key] = emptyValue(value[key]);
+        changed = true;
         continue;
       }
 
@@ -149,8 +164,13 @@
         if ((trimmed.startsWith("{") || trimmed.startsWith("[")) && AD_NEEDLES.some(function (needle) { return trimmed.toLowerCase().includes(needle); })) {
           try {
             const nested = JSON.parse(trimmed);
+            const before = JSON.stringify(nested);
             clean(nested);
-            value[key] = JSON.stringify(nested);
+            const after = JSON.stringify(nested);
+            if (after !== before) {
+              value[key] = after;
+              changed = true;
+            }
             continue;
           } catch (_) {}
         }
@@ -158,6 +178,7 @@
 
       if (isAdObject(value[key])) {
         value[key] = emptyValue(value[key]);
+        changed = true;
         continue;
       }
 
@@ -174,14 +195,17 @@
     if (url.includes("/monet/comm_resource/get")) {
       for (const key of ["comm_resources", "commResources", "resources", "resource_list", "resourceList"]) {
         if (Array.isArray(obj[key])) {
+          const beforeLength = obj[key].length;
           obj[key] = obj[key].filter(function (item) {
             return !isAdObject(item);
           });
+          if (obj[key].length !== beforeLength) changed = true;
         }
       }
     }
 
     clean(obj);
+    if (!changed) return finish();
     return finish(JSON.stringify(obj));
   } catch (_) {
     return finish();
