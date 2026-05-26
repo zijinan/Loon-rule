@@ -10,6 +10,7 @@ Safety:
 - Only for iacc.qq.com and iacc.rec.qq.com.
 - No reject rules and no broad qq.com/gtimg.com MITM.
 - Body replacements are same length to avoid breaking binary protobuf frames.
+- Header cookies are allowed to change length; they are isolated to the ad service.
 */
 
 const MAX_BODY_SIZE = 128 * 1024;
@@ -69,10 +70,57 @@ function neutralizeText(source) {
 
 function neutralizeCookie(source) {
   let rewritten = String(source || "");
-  rewritten = replaceLiteral(rewritten, "qad_device_platform=5", "qxx_device_platform=0");
-  rewritten = rewritten.replace(/(^|;\s*)(v_t_appid|appid)=wx([0-9a-f]{16})/gi, "$1$2=xx$3");
-  rewritten = rewritten.replace(/(^|;\s*)(v_main_login|main_login)=wx(?=;|$)/gi, "$1$2=xx");
-  return rewritten;
+  const dropKeys = new Set([
+    "access_token",
+    "openid",
+    "p_vuserid",
+    "refresh_token",
+    "v_p_vuserid",
+    "v_t_access_token",
+    "v_t_openid",
+    "v_t_refresh_token",
+    "v_vurefresh",
+    "v_vuserid",
+    "v_vusession",
+    "vcuid",
+    "vdevice_qimei36",
+    "vqq_access_token",
+    "vqq_appid",
+    "vqq_openid",
+    "vqq_refresh_token",
+    "vqq_vuserid",
+    "vqq_vusession",
+    "vuserid",
+    "vusession"
+  ]);
+
+  const replacements = {
+    appid: "xxca942bbff22e0e51",
+    main_login: "xx",
+    qad_device_platform: "0",
+    video_appid: "0",
+    video_omgid: "",
+    video_platform: "0",
+    v_main_login: "xx",
+    v_t_appid: "xxca942bbff22e0e51"
+  };
+
+  const parts = [];
+  for (const rawPart of rewritten.split(";")) {
+    const trimmed = rawPart.trim();
+    if (!trimmed) continue;
+    const eq = trimmed.indexOf("=");
+    const key = eq >= 0 ? trimmed.slice(0, eq) : trimmed;
+    const lower = key.toLowerCase();
+    if (dropKeys.has(lower)) continue;
+    if (Object.prototype.hasOwnProperty.call(replacements, lower)) {
+      parts.push(`${key}=${replacements[lower]}`);
+    } else {
+      parts.push(trimmed);
+    }
+  }
+
+  return parts.join("; ");
 }
 
 try {
@@ -86,6 +134,8 @@ try {
       if (nextCookie !== cookie.value) {
         const nextHeaders = Object.assign({}, headers);
         nextHeaders[cookie.key] = nextCookie;
+        const loginv = headerValue("loginv");
+        if (loginv.value && loginv.value !== "0") nextHeaders[loginv.key] = "0";
         result.headers = nextHeaders;
       }
     }

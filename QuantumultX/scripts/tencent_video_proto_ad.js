@@ -259,7 +259,7 @@ try {
         ];
 
         const hasAdOnlyModule = body.length <= 64 * 1024 && adOnlyMarkers.some((x) => text.includes(x));
-        const hasSmallPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some((x) => text.includes(x));
+        const hasSoftPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some((x) => text.includes(x));
         const hasAdMaterial = materialMarkers.some((x) => text.includes(x));
         const hasTencentVideoProto = text.includes("qqlive_rsp_head") || text.includes("trpc.ovb_galaxy") || text.includes("trpc.access.video_access_app");
         const hasTencentAdConfig = url.includes("config.ab.qq.com/tab/GetTabRemoteConfig") && (
@@ -270,8 +270,15 @@ try {
           text.includes("qad_") ||
           text.includes("ad_focus_strategy")
         );
+        const hasPageState = hasTencentVideoProto && (
+          text.includes("page_offset") ||
+          text.includes("sdk_page_ctx") ||
+          text.includes("video_un_page_index") ||
+          text.includes("_ctrl_page_index")
+        );
+        const hasHardAdSignal = hasTencentAdConfig || hasAdMaterial || hasAdOnlyModule || text.includes("advertiser=") || text.includes("creative_finger_print=");
 
-        if (hasTencentAdConfig || hasAdMaterial || hasAdOnlyModule || hasSmallPromotionModule || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
+        if (hasHardAdSignal || (hasSoftPromotionModule && !hasPageState)) {
           const swaps = [
             ["iqad_", "ixxd_"],
             ["qad_", "qxx_"],

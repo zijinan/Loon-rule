@@ -136,6 +136,25 @@ const iaccHeaderMarkers = [
   "qad_device_platform=5"
 ];
 
+const iaccSensitiveHeaderMarkers = [
+  "access_token=",
+  "openid=",
+  "p_vuserid=",
+  "refresh_token=",
+  "v_p_vuserid=",
+  "v_t_access_token=",
+  "v_t_openid=",
+  "v_t_refresh_token=",
+  "v_vurefresh=",
+  "v_vuserid=",
+  "v_vusession=",
+  "vdevice_qimei36=",
+  "video_appid=1000005",
+  "video_platform=5",
+  "vuserid=",
+  "vusession="
+];
+
 const iaccBodyMarkers = [
   "PRE-DOWNLOAD",
   "PRERANK",
@@ -377,15 +396,57 @@ const stats = {
   jsonCleanChanged: 0,
   iaccHeaderSamples: 0,
   iaccHeaderChanged: 0,
+  iaccHeaderHardened: 0,
   iaccRequestBodySamples: 0,
   iaccRequestBodyChanged: 0,
   iaccBodySamples: 0,
   iaccBodyChanged: 0,
+  paginationSoftSamples: 0,
+  paginationSoftUnchanged: 0,
+  paginationHardSamples: 0,
+  paginationHardChanged: 0,
   mitmHosts: configuredMitmHosts().length,
   keep: Object.fromEntries(keepNeedles.map((needle) => [needle, { total: 0, kept: 0 }]))
 };
 
 const issues = [];
+
+const paginationSoftProto = [
+  "qqlive_rsp_head",
+  "video_un_page_index",
+  "sdk_page_ctx",
+  "{\"page_offset\":1,\"page_size\":5,\"used_module_num\":7}",
+  "_ctrl_page_index",
+  "ad.userinfo.vip",
+  "ad.vipinfo",
+  "https://vfiles.gtimg.cn/wupload/xy/starter/example.png",
+  "https://vip.image.video.qpic.cn/wupload/xy/promotionTest/example.png"
+].join("\u0000");
+const paginationSoftOut = runResponse("https://i.video.qq.com/", paginationSoftProto, { "content-type": "application/octet-stream" });
+stats.paginationSoftSamples += 1;
+if (paginationSoftOut === paginationSoftProto) stats.paginationSoftUnchanged += 1;
+else issues.push({
+  type: "pagination.softChanged",
+  sample: "synthetic/page-offset-soft-promotion",
+  detail: "page-offset responses with only soft promotion resources must remain unchanged"
+});
+
+const paginationHardProto = paginationSoftProto + "\u0000pgdt.gtimg.cn\u0000AdFeedInfo\u0000click_id";
+const paginationHardOut = runResponse("https://i.video.qq.com/", paginationHardProto, { "content-type": "application/octet-stream" });
+stats.paginationHardSamples += 1;
+if (paginationHardOut !== paginationHardProto) stats.paginationHardChanged += 1;
+else issues.push({
+  type: "pagination.hardUnchanged",
+  sample: "synthetic/page-offset-hard-ad",
+  detail: "page-offset responses with hard ad material must still be rewritten"
+});
+if (paginationHardOut.length !== paginationHardProto.length) {
+  issues.push({
+    type: "pagination.hardLengthChanged",
+    sample: "synthetic/page-offset-hard-ad",
+    detail: "hard ad rewrite must preserve protobuf-like body length"
+  });
+}
 
 if (stats.rejectRules !== 0) {
   issues.push({ type: "config.rejectRules", sample: "TencentVideo-Safe.conf", detail: `${stats.rejectRules} reject rules found` });
@@ -468,6 +529,11 @@ for (const entryDir of entryDirs) {
       if (outCookie !== cookie) stats.iaccHeaderChanged += 1;
       const rem = remaining(outCookie, iaccHeaderMarkers);
       if (rem.length) addIssue(issues, "iacc.headerMarkerRemaining", entryDir, rem.join(", "));
+      const headerText = JSON.stringify(outHeaders).toLowerCase();
+      const sensitiveRemaining = iaccSensitiveHeaderMarkers.filter((needle) => headerText.includes(needle.toLowerCase()));
+      if (sensitiveRemaining.length) addIssue(issues, "iacc.sensitiveHeaderRemaining", entryDir, sensitiveRemaining.join(", "));
+      else stats.iaccHeaderHardened += 1;
+      if (outHeaders.loginv && outHeaders.loginv !== "0") addIssue(issues, "iacc.loginvRemaining", entryDir, outHeaders.loginv);
     }
 
     if (reqBody && reqBody.length <= 128 * 1024 && includesAny(reqBody, iaccBodyMarkers)) {
