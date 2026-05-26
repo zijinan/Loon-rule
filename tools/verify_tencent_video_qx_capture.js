@@ -224,6 +224,14 @@ if (/disp-qryapi\\.3g\\.qq\\.com.*script-response-body/.test(conf)) {
   });
 }
 
+if (/(playproxy\\.video\\.qq\\.com|rdelivery\\.qq\\.com).*script-response-body/.test(conf)) {
+  issues.push({
+    type: "config.noopJsonResponseRewrite",
+    sample: "TencentVideo-Safe.conf",
+    detail: "playproxy/rdelivery JSON responses were no-op in captures and should not be MITM rewritten"
+  });
+}
+
 for (const entryDir of entryDirs) {
   const url = requestUrl(entryDir);
   const reqBody = body(entryDir, "request");
