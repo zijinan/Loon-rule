@@ -7,10 +7,12 @@ HOST,cschannel.anticheatexpert.com
 HOST,down.anticheatexpert.com
 HOST-SUFFIX,anticheatexpert.com
 HOST-SUFFIX,qq.com
+HOST-SUFFIX,qq.com.cn
 HOST-SUFFIX,tencent.com
 HOST-SUFFIX,gtimg.com
 HOST-SUFFIX,gtimg.cn
 HOST-SUFFIX,qpic.cn
+HOST-SUFFIX,qlogo.cn
 HOST-SUFFIX,qcloud.com
 HOST-SUFFIX,myqcloud.com
 HOST-SUFFIX,tencent-cloud.com
@@ -29,6 +31,7 @@ HOST-SUFFIX,wegame.com
 HOST-SUFFIX,wegame.com.cn
 HOST-SUFFIX,tencentmind.com
 HOST-SUFFIX,intlgame.com
+HOST-SUFFIX,tencentgames.com
 HOST-SUFFIX,cdn-go.cn
 
 # GCloud / Tencent game cloud / config / CDN.
@@ -89,6 +92,9 @@ HOST,cloud.tgpa.qq.com
 HOST-SUFFIX,tga.qq.com
 HOST-SUFFIX,kohesport.qq.com
 HOST-SUFFIX,smtcdns.net
+HOST,dns.weixin.qq.com.cn
+HOST,paydns.weixin.qq.com
+IP-CIDR,119.29.29.0/24,no-resolve
 HOST-SUFFIX,video.qq.com
 HOST,static-estv.tga.qq.com
 HOST,smobatv-pic.tga.qq.com

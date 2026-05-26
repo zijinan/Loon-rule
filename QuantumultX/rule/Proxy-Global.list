@@ -5,6 +5,11 @@ HOST-SUFFIX,google.com
 HOST-SUFFIX,googleapis.com
 HOST-SUFFIX,gstatic.com
 HOST-SUFFIX,googleusercontent.com
+HOST-SUFFIX,ggpht.com
+HOST-SUFFIX,youtube.com
+HOST-SUFFIX,youtu.be
+HOST-SUFFIX,googlevideo.com
+HOST-SUFFIX,ytimg.com
 HOST-SUFFIX,facebook.com
 HOST-SUFFIX,fbcdn.net
 HOST-SUFFIX,instagram.com
@@ -17,3 +22,6 @@ HOST-SUFFIX,github.com
 HOST-SUFFIX,githubusercontent.com
 HOST-SUFFIX,githubassets.com
 HOST-SUFFIX,gitlab.com
+HOST-SUFFIX,spotify.com
+HOST-SUFFIX,tospotify.com
+HOST-SUFFIX,scdn.co

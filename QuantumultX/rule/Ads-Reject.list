@@ -1,0 +1,37 @@
+# NAME: Ads-Reject
+# DESC: Conservative ad and telemetry reject rules for Quantumult X. Keep before broad Tencent/Google/DIRECT rules.
+
+# Tencent ads and Tencent Video ad/report endpoints seen in local request logs.
+HOST-SUFFIX,ad.qq.com
+HOST-SUFFIX,ads.qq.com
+HOST-SUFFIX,gdt.qq.com
+HOST-SUFFIX,gdtimg.com
+HOST-SUFFIX,l.qq.com
+HOST-SUFFIX,iacc.qq.com
+HOST-SUFFIX,iacc.rec.qq.com
+HOST-SUFFIX,h.trace.qq.com
+HOST-SUFFIX,rmonitor.qq.com
+HOST-SUFFIX,snowflake.qq.com
+HOST-SUFFIX,mazu.m.qq.com
+HOST-SUFFIX,tmfmazu.m.qq.com
+
+# Google/Firebase/app analytics.
+HOST-SUFFIX,app-measurement.com
+HOST-SUFFIX,app-analytics-services.com
+HOST-SUFFIX,appsflyersdk.com
+HOST-SUFFIX,doubleclick.net
+HOST-SUFFIX,googleadservices.com
+HOST-SUFFIX,googlesyndication.com
+HOST-SUFFIX,google-analytics.com
+HOST,firebaselogging-pa.googleapis.com
+HOST,s.youtube.com
+
+# KuGou ad/report hosts. Rewrite remains disabled; these are simple host rejects.
+HOST-SUFFIX,adserviceretry.kugou.com
+HOST-SUFFIX,ads.service.kugou.com
+HOST-SUFFIX,mobilelog.kugou.com
+HOST-SUFFIX,nbcollect.kugou.com
+HOST-SUFFIX,rt-m.kugou.com
+HOST-SUFFIX,d.kugou.com
+HOST-SUFFIX,filter.kugou.com
+HOST-SUFFIX,push.mobile.kugou.com
