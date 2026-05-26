@@ -23,11 +23,49 @@ function replaceRegexStable(source, regex, replacer) {
   });
 }
 
+function includesAny(source, needles) {
+  const lower = source.toLowerCase();
+  return needles.some((needle) => lower.includes(needle.toLowerCase()));
+}
+
 let output;
 
 try {
   if (body && body.length <= MAX_BODY_SIZE) {
     const original = body;
+    const hasPageContext = includesAny(original, [
+      "page_offset",
+      "sdk_page_ctx",
+      "video_un_page_index",
+      "_ctrl_page_index",
+      "feed_context",
+      "page_context",
+      "page=",
+      "offset=",
+      "cursor",
+      "refresh"
+    ]);
+    const pageContextStateKeys = {
+      "last_ad_type": true,
+      "focus_content_and_ad_num": true,
+      "content_count_after_last_ad": true,
+      "industry_native_ad": true,
+      "has_industry_native_ad": true,
+      "os_version_ad_ssp_to_rear": true,
+      "ad_infinite_init": true,
+      "ad_and_content": true,
+      "native_ad_pos": true,
+      "parallel_ad_abs_pos": true,
+      "parallel_ad_pos": true,
+      "ad_abs_seq": true,
+      "ad_abs_pos": true,
+      "ad_request_id": true,
+      "ad_count": true,
+      "ssp_adload": true,
+      "adload": true,
+      "ad_pos": true,
+      "view_ad_ssp": true
+    };
 
     const swaps = [
       ["AdRequestContextInfo", "XxRequestContextInfo"],
@@ -124,6 +162,7 @@ try {
     ];
 
     for (const [needle, replacement] of swaps) {
+      if (hasPageContext && pageContextStateKeys[needle]) continue;
       body = replaceLiteral(body, needle, replacement);
     }
 

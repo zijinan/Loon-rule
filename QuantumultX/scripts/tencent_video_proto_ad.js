@@ -293,6 +293,40 @@ try {
         );
         const hasHardAdSignal = hasTencentAdConfig || hasAdMaterial || hasAdOnlyModule || text.includes("advertiser=") || text.includes("creative_finger_print=") || text.includes("creative_xinger_xrint") || text.includes("xvertiserx_name_hashed_value");
         const hasPageAction = pageActionMarkers.some((x) => text.includes(x));
+        const pageStateKeys = {
+          "ad_session_id": true,
+          "ad_schedule_ability": true,
+          "ad_group_id": true,
+          "ad_idx": true,
+          "whole_ad_type": true,
+          "ssp_ad_type": true,
+          "ams_ad_type": true,
+          "feeds_ad_style": true,
+          "view_ad_ssp": true,
+          "view_xx_ssp": true,
+          "view_ad_ssp_engine_passthrough": true,
+          "view_xx_ssp_engine_passthrough": true,
+          "view_ad_ssp_ad": true,
+          "view_xx_ssp_ad": true,
+          "parallel_ad_abs_pos": true,
+          "parallel_ad_pos": true,
+          "ad_infinite_init": true,
+          "ad_and_content": true,
+          "native_ad_pos": true,
+          "last_ad_type": true,
+          "ad_abs_seq": true,
+          "ad_abs_pos": true,
+          "ad_count": true,
+          "adload": true,
+          "ad_pos": true,
+          "jump_add_extra_info": true,
+          "rerank_ad_info": true,
+          "is_locked_ad": true,
+          "is_converted_native_ad": true,
+          "ad_nfb_none_view": true,
+          "content_type_ad": true,
+          "select_ad_type": true
+        };
 
         if (hasHardAdSignal || (hasSoftPromotionModule && !hasPageState)) {
           const swaps = [
@@ -484,6 +518,7 @@ try {
           ];
 
           for (const [needle, replacement] of swaps) {
+            if (hasPageState && pageStateKeys[needle]) continue;
             rewritten = replaceLiteral(rewritten, needle, replacement);
           }
 
@@ -491,8 +526,10 @@ try {
             const prefix = match.slice(0, -18);
             return `${prefix}xx${match.slice(prefix.length + 2)}`;
           });
-          rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ad_/g, (match) => `${match.slice(0, -3)}xx_`);
-          rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ads_/g, (match) => `${match.slice(0, -4)}xxs_`);
+          if (!hasPageState) {
+            rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ad_/g, (match) => `${match.slice(0, -3)}xx_`);
+            rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ads_/g, (match) => `${match.slice(0, -4)}xxs_`);
+          }
 
           if (rewritten !== body) output = rewritten;
         } else if (hasPageState && hasPageAction) {

@@ -252,6 +252,81 @@ const keepNeedles = [
   "Feed"
 ];
 
+const paginationContextNeedles = [
+  "page_offset",
+  "sdk_page_ctx",
+  "video_un_page_index",
+  "_ctrl_page_index",
+  "feed_context",
+  "page_context",
+  "page=",
+  "offset=",
+  "cursor",
+  "refresh"
+];
+
+const paginationRequestStateMarkers = [
+  "last_ad_type",
+  "focus_content_and_ad_num",
+  "content_count_after_last_ad",
+  "industry_native_ad",
+  "has_industry_native_ad",
+  "os_version_ad_ssp_to_rear",
+  "ad_infinite_init",
+  "ad_and_content",
+  "native_ad_pos",
+  "parallel_ad_abs_pos",
+  "parallel_ad_pos",
+  "ad_abs_seq",
+  "ad_abs_pos",
+  "ad_request_id",
+  "ad_count",
+  "ssp_adload",
+  "adload",
+  "ad_pos",
+  "view_ad_ssp"
+];
+
+const paginationResponseStateMarkers = [
+  "ad_session_id",
+  "ad_schedule_ability",
+  "ad_group_id",
+  "ad_idx",
+  "whole_ad_type",
+  "ssp_ad_type",
+  "ams_ad_type",
+  "feeds_ad_style",
+  "view_ad_ssp",
+  "view_xx_ssp",
+  "view_ad_ssp_engine_passthrough",
+  "view_xx_ssp_engine_passthrough",
+  "view_ad_ssp_ad",
+  "view_xx_ssp_ad",
+  "parallel_ad_abs_pos",
+  "parallel_ad_pos",
+  "ad_infinite_init",
+  "ad_and_content",
+  "native_ad_pos",
+  "last_ad_type",
+  "ad_abs_seq",
+  "ad_abs_pos",
+  "ad_count",
+  "adload",
+  "ad_pos",
+  "jump_add_extra_info",
+  "rerank_ad_info",
+  "is_locked_ad",
+  "is_converted_native_ad",
+  "ad_nfb_none_view",
+  "ad_nfb_bad_content",
+  "ad_nfb_dislike",
+  "ad_nfb_repetition",
+  "ad_nfb_direct_close",
+  "ad_nfb_dislike_brand",
+  "content_type_ad",
+  "select_ad_type"
+];
+
 const jsonNoopUrls = [
   /^https:\/\/disp-qryapi\.3g\.qq\.com\/v1\/dispatch/,
   /^https:\/\/appcfg\.v\.qq\.com\/getconf/
@@ -287,7 +362,6 @@ const provenanceMarkers = [
   "PRE-DOWNLOAD",
   "CARD-PRERANK",
   "CARD-RANK",
-  "view_ad",
   "kNoSubAdType",
   "adpass=",
   "adversion=",
@@ -550,6 +624,15 @@ function remaining(source, needles) {
   return needles.filter((needle) => (/[A-Z]/.test(needle) ? source : lower).includes(/[A-Z]/.test(needle) ? needle : needle.toLowerCase()));
 }
 
+function hasPaginationContext(source) {
+  return includesAny(source || "", paginationContextNeedles);
+}
+
+function withoutAllowed(markers, allowedMarkers) {
+  const allowed = new Set(allowedMarkers);
+  return markers.filter((marker) => !allowed.has(marker));
+}
+
 function addIssue(issues, type, entryDir, detail) {
   issues.push({
     type,
@@ -648,6 +731,21 @@ function checkKeepNeedles(entryDir, before, after) {
   }
 }
 
+function checkPaginationStatePreserved(entryDir, before, after, markers, kind) {
+  for (const marker of markers) {
+    if (!before.includes(marker)) continue;
+    if (kind === "request") stats.paginationRequestStateSamples += 1;
+    else stats.paginationResponseStateSamples += 1;
+
+    if (after.includes(marker)) {
+      if (kind === "request") stats.paginationRequestStatePreserved += 1;
+      else stats.paginationResponseStatePreserved += 1;
+    } else {
+      addIssue(issues, `pagination.${kind}StateLost`, entryDir, marker);
+    }
+  }
+}
+
 function configuredMitmHosts() {
   const match = conf.match(/^hostname\s*=\s*(.*)$/m);
   if (!match) return [];
@@ -718,6 +816,10 @@ const stats = {
   directMaterialUpstreamSamples: 0,
   directMaterialUpstreamChanged: 0,
   directMaterialUpstreamClean: 0,
+  paginationRequestStateSamples: 0,
+  paginationRequestStatePreserved: 0,
+  paginationResponseStateSamples: 0,
+  paginationResponseStatePreserved: 0,
   paginationSoftSamples: 0,
   paginationSoftUnchanged: 0,
   paginationHardSamples: 0,
@@ -912,8 +1014,13 @@ for (const entryDir of entryDirs) {
     const out = runRequest(url, reqBody);
     if (out !== reqBody) stats.requestChanged += 1;
     if (out.length !== reqBody.length) addIssue(issues, "request.lengthChanged", entryDir, url);
-    const rem = remaining(out, requestMarkers);
+    const rem = hasPaginationContext(reqBody)
+      ? withoutAllowed(remaining(out, requestMarkers), paginationRequestStateMarkers)
+      : remaining(out, requestMarkers);
     if (rem.length) addIssue(issues, "request.markerRemaining", entryDir, rem.join(", "));
+    if (hasPaginationContext(reqBody)) {
+      checkPaginationStatePreserved(entryDir, reqBody, out, paginationRequestStateMarkers, "request");
+    }
   }
 
   if (!respBody || respBody.length > 1024 * 1024) continue;
@@ -944,8 +1051,13 @@ for (const entryDir of entryDirs) {
     if (out !== respBody) stats.responseChanged += 1;
     if (out.length !== respBody.length) addIssue(issues, "response.lengthChanged", entryDir, url);
     if (out.length === 0) addIssue(issues, "response.emptied", entryDir, url);
-    const rem = remaining(out, responseMarkers);
+    const rem = hasPaginationContext(respBody)
+      ? withoutAllowed(remaining(out, responseMarkers), paginationResponseStateMarkers)
+      : remaining(out, responseMarkers);
     if (rem.length) addIssue(issues, "response.markerRemaining", entryDir, rem.join(", "));
+    if (hasPaginationContext(respBody)) {
+      checkPaginationStatePreserved(entryDir, respBody, out, paginationResponseStateMarkers, "response");
+    }
   }
 
   if (url.includes("config.ab.qq.com/tab/GetTabRemoteConfig") && includesAny(respBody, splashMarkers)) {
@@ -1048,6 +1160,20 @@ if (stats.jsonCleanSamples !== stats.jsonCleanChanged) {
     type: "json.cleanUnchanged",
     sample: captureRoot,
     detail: `${stats.jsonCleanChanged}/${stats.jsonCleanSamples} JSON ad samples changed`
+  });
+}
+if (stats.paginationRequestStateSamples !== stats.paginationRequestStatePreserved) {
+  issues.push({
+    type: "pagination.requestStateNotPreserved",
+    sample: captureRoot,
+    detail: `${stats.paginationRequestStatePreserved}/${stats.paginationRequestStateSamples} pagination request state markers preserved`
+  });
+}
+if (stats.paginationResponseStateSamples !== stats.paginationResponseStatePreserved) {
+  issues.push({
+    type: "pagination.responseStateNotPreserved",
+    sample: captureRoot,
+    detail: `${stats.paginationResponseStatePreserved}/${stats.paginationResponseStateSamples} pagination response state markers preserved`
   });
 }
 
