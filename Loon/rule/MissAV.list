@@ -18,6 +18,10 @@ DOMAIN-SUFFIX,fourhoi.com
 DOMAIN,client-rapi-missav.recombee.com
 DOMAIN-SUFFIX,recombee.com
 
+# Optional Cloudflare verification helper.
+# Enable only if Cloudflare verification loops.
+# DOMAIN-SUFFIX,cloudflare.com
+
 # Ads / redirect / tracking
 DOMAIN-SUFFIX,tsyndicate.com,REJECT
 DOMAIN-SUFFIX,rallytrck.website,REJECT
