@@ -49,6 +49,11 @@ const responseMarkers = [
   "adgroup_id",
   "adNetwork",
   "ad_nfb_none_view",
+  "ad_nfb_bad_content",
+  "ad_nfb_dislike",
+  "ad_nfb_repetition",
+  "ad_nfb_direct_close",
+  "ad_nfb_dislike_brand",
   "WxProgram",
   "weixinadinfo",
   "SITE_SET_WECHAT",
@@ -64,6 +69,11 @@ const responseMarkers = [
   "parallel_ad_abs_pos",
   "adload",
   "GsADCoIB",
+  "gdt.qq.com/gdt_click",
+  "gdt.qq.com/gdt_report",
+  "gdt.qq.com/gdt_stats",
+  "gdt.qq.com/imp_stay_report",
+  "gdt.qq.com/conv",
   "adsmind.gdtimg.com",
   "pgdt.gtimg.cn",
   "m.x.qq.com/activity/qqvideo/interact/vod.html",
@@ -84,7 +94,21 @@ const keepNeedles = [
   "DownloadGroupActivity",
   "wuji_dashboard/xy/starter",
   "topic-feeds-in-video",
-  "phoneScreencast.feedBackQrCode"
+  "phoneScreencast.feedBackQrCode",
+  "unitResults",
+  "refresh",
+  "Refresh",
+  "page",
+  "Page",
+  "next",
+  "Next",
+  "offset",
+  "Offset",
+  "request_id",
+  "session",
+  "Session",
+  "feed",
+  "Feed"
 ];
 
 const jsonNoopUrls = [
@@ -209,6 +233,15 @@ function addIssue(issues, type, entryDir, detail) {
   });
 }
 
+function checkKeepNeedles(entryDir, before, after) {
+  for (const needle of keepNeedles) {
+    if (!before.includes(needle)) continue;
+    stats.keep[needle].total += 1;
+    if (after.includes(needle)) stats.keep[needle].kept += 1;
+    else addIssue(issues, "keep.lost", entryDir, needle);
+  }
+}
+
 function configuredMitmHosts() {
   const match = conf.match(/^hostname\s*=\s*(.*)$/m);
   if (!match) return [];
@@ -300,6 +333,7 @@ for (const entryDir of entryDirs) {
     stats.jsonNoopSamples += 1;
     const out = runJsonResponse(url, respBody, headers);
     if (out !== respBody) addIssue(issues, "json.noopChanged", entryDir, url);
+    checkKeepNeedles(entryDir, respBody, out);
   }
 
   if (jsonCleanUrls.some((regex) => regex.test(url)) && includesAny(respBody, jsonCleanMarkers)) {
@@ -308,6 +342,7 @@ for (const entryDir of entryDirs) {
     if (out !== respBody) stats.jsonCleanChanged += 1;
     const rem = remaining(out, jsonCleanMarkers);
     if (rem.length) addIssue(issues, "json.markerRemaining", entryDir, rem.join(", "));
+    checkKeepNeedles(entryDir, respBody, out);
   }
 
   const isTencentVideoApi = /^https:\/\/i\.video\.qq\.com\//.test(url) || url.includes("config.ab.qq.com/tab/GetTabRemoteConfig");
@@ -332,12 +367,7 @@ for (const entryDir of entryDirs) {
     if (rem.length) addIssue(issues, "splash.markerRemaining", entryDir, rem.join(", "));
   }
 
-  for (const needle of keepNeedles) {
-    if (!respBody.includes(needle)) continue;
-    stats.keep[needle].total += 1;
-    if (out.includes(needle)) stats.keep[needle].kept += 1;
-    else addIssue(issues, "keep.lost", entryDir, needle);
-  }
+  checkKeepNeedles(entryDir, respBody, out);
 }
 
 if (stats.captureDirs === 0) issues.push({ type: "captures.missing", sample: captureRoot, detail: "no capture_* directories found" });
