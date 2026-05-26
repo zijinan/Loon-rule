@@ -160,7 +160,10 @@ const responseMarkers = [
   "adsmind.gdtimg.com",
   "pgdt.gtimg.cn",
   "m.x.qq.com/activity/qqvideo/interact/vod.html",
-  "mall.video.qq.com/ecommerce/detail"
+  "mall.video.qq.com/ecommerce/detail",
+  "yuanbao.tencent.com/evt/tvdl",
+  "m.manju.v.qq.com/z/kairos/download",
+  "film.video.qq.com/weixin/v3/device"
 ];
 
 const splashMarkers = [

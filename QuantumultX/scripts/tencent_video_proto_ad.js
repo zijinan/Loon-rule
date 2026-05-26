@@ -258,6 +258,12 @@ try {
           "gdt_ad_id"
         ];
 
+        const pageActionMarkers = [
+          "yuanbao.tencent.com/evt/tvdl",
+          "m.manju.v.qq.com/z/kairos/download",
+          "film.video.qq.com/weixin/v3/device"
+        ];
+
         const hasAdOnlyModule = body.length <= 64 * 1024 && adOnlyMarkers.some((x) => text.includes(x));
         const hasSoftPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some((x) => text.includes(x));
         const hasAdMaterial = materialMarkers.some((x) => text.includes(x));
@@ -277,6 +283,7 @@ try {
           text.includes("_ctrl_page_index")
         );
         const hasHardAdSignal = hasTencentAdConfig || hasAdMaterial || hasAdOnlyModule || text.includes("advertiser=") || text.includes("creative_finger_print=");
+        const hasPageAction = pageActionMarkers.some((x) => text.includes(x));
 
         if (hasHardAdSignal || (hasSoftPromotionModule && !hasPageState)) {
           const swaps = [
@@ -314,6 +321,9 @@ try {
             ["tytx.m.cn.miaozhen.com", "tytx.m.cn.miaozhen.bad"],
             ["m.v.qq.com/activity/qqvideo/interact/vod.html", "m.v.qq.com/activity/qqvideo/interact/vod.htm0"],
             ["m.x.qq.com/activity/qqvideo/interact/vod.html", "m.x.qq.com/activity/qqvideo/interact/vod.htm0"],
+            ["yuanbao.tencent.com/evt/tvdl", "yuanbao.tencent.com/evt/null"],
+            ["m.manju.v.qq.com/z/kairos/download", "m.manju.v.qq.com/z/kairos/disabled"],
+            ["film.video.qq.com/weixin/v3/device", "film.video.qq.com/weixin/v3/blank_"],
             ["mall.video.qq.com/ecommerce/detail", "mall.video.qq.com/ecommerce/blank_"],
             ["pgdt.gtimg.zz", "pxxx.gtimg.zz"],
             ["gdt_report.fcg", "xxx_report.fcg"],
@@ -469,6 +479,18 @@ try {
           });
           rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ad_/g, (match) => `${match.slice(0, -3)}xx_`);
           rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ads_/g, (match) => `${match.slice(0, -4)}xxs_`);
+
+          if (rewritten !== body) output = rewritten;
+        } else if (hasPageState && hasPageAction) {
+          const pageActionSwaps = [
+            ["yuanbao.tencent.com/evt/tvdl", "yuanbao.tencent.com/evt/null"],
+            ["m.manju.v.qq.com/z/kairos/download", "m.manju.v.qq.com/z/kairos/disabled"],
+            ["film.video.qq.com/weixin/v3/device", "film.video.qq.com/weixin/v3/blank_"]
+          ];
+
+          for (const [needle, replacement] of pageActionSwaps) {
+            rewritten = replaceLiteral(rewritten, needle, replacement);
+          }
 
           if (rewritten !== body) output = rewritten;
         }
