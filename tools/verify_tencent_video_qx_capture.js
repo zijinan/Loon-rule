@@ -49,6 +49,21 @@ const responseMarkers = [
   "adgroup_id",
   "adNetwork",
   "ad_nfb_none_view",
+  "WxProgram",
+  "weixinadinfo",
+  "SITE_SET_WECHAT",
+  "WECHAT",
+  "nativeOpenAdCanvas",
+  "OpenAdCanvas",
+  "gdt/ams_ad_audit",
+  "ams_ad_audit",
+  "mall.video.qq.com",
+  "view_xx_ssp_ad",
+  "view_xx_ssp_engine_passthrough",
+  "parallel_ad_pos",
+  "parallel_ad_abs_pos",
+  "adload",
+  "GsADCoIB",
   "adsmind.gdtimg.com",
   "pgdt.gtimg.cn",
   "m.x.qq.com/activity/qqvideo/interact/vod.html",
@@ -57,7 +72,10 @@ const responseMarkers = [
 
 const splashMarkers = [
   "ADSplash",
-  "adsplash"
+  "adsplash",
+  "iqad_",
+  "qad_",
+  "ad_focus_strategy"
 ];
 
 const keepNeedles = [

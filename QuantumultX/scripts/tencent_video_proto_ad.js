@@ -78,6 +78,13 @@ const JSON_AD_NEEDLES = [
   "m.v.qq.com/activity/qqvideo/interact/vod.html",
   "m.x.qq.com/activity/qqvideo/interact/vod.html",
   "mall.video.qq.com/ecommerce/detail",
+  "mall.video.qq.com",
+  "weixinadinfo",
+  "nativeOpenAdCanvas",
+  "SITE_SET_WECHAT",
+  "wx_appid",
+  "gdt/ams_ad_audit",
+  "ams_ad_audit",
   "tytx.m.cn.miaozhen.com",
   "ad_frame_time",
   "type_ad_frame_time",
@@ -229,10 +236,20 @@ try {
         const hasSmallPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some((x) => text.includes(x));
         const hasAdMaterial = materialMarkers.some((x) => text.includes(x));
         const hasTencentVideoProto = text.includes("qqlive_rsp_head") || text.includes("trpc.ovb_galaxy") || text.includes("trpc.access.video_access_app");
-        const hasSplashConfig = url.includes("config.ab.qq.com/tab/GetTabRemoteConfig") && (text.includes("adsplash") || text.includes("splash") || text.includes("launch"));
+        const hasTencentAdConfig = url.includes("config.ab.qq.com/tab/GetTabRemoteConfig") && (
+          text.includes("adsplash") ||
+          text.includes("splash") ||
+          text.includes("launch") ||
+          text.includes("iqad_") ||
+          text.includes("qad_") ||
+          text.includes("ad_focus_strategy")
+        );
 
-        if (hasSplashConfig || hasAdMaterial || hasAdOnlyModule || hasSmallPromotionModule || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
+        if (hasTencentAdConfig || hasAdMaterial || hasAdOnlyModule || hasSmallPromotionModule || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
           const swaps = [
+            ["iqad_", "ixxd_"],
+            ["qad_", "qxx_"],
+            ["QAD", "QXX"],
             ["adsplash_online_network", "xxsplxsh_offlin_network"],
             ["ADSplash", "XXSplxsh"],
             ["adsplash", "xxsplxsh"],
@@ -269,8 +286,11 @@ try {
             ["gdt_report.fcg", "xxx_report.fcg"],
             ["gdt_click.fcg", "xxx_click.fcg"],
             ["gdt_stats.fcg", "xxx_stats.fcg"],
+            ["gdt/ams_ad_audit", "xxx/ams_xx_audit"],
+            ["ams_ad_audit", "ams_xx_audit"],
             ["gdt.qq.com", "xxx.qq.com"],
             ["gdtimg.com", "xxximg.com"],
+            ["mall.video.qq.com", "mall.video.qq.zzz"],
             ["\"enter_action_show\":\"1\"", "\"enter_action_show\":\"0\""],
             ["\"enter_action_type\":\"4\"", "\"enter_action_type\":\"0\""],
             ["\"action_type\":\"4\"", "\"action_type\":\"0\""],
@@ -305,6 +325,21 @@ try {
             ["ssp_ad_type", "ssp_xx_type"],
             ["ams_ad_type", "ams_xx_type"],
             ["feeds_ad_style", "feeds_xx_style"],
+            ["view_ad_ssp_engine_passthrough", "view_xx_ssp_engine_passthru_xx"],
+            ["view_xx_ssp_engine_passthrough", "view_xx_ssp_engine_passthru_xx"],
+            ["view_ad_ssp_ad", "view_xx_ssp_xx"],
+            ["view_xx_ssp_ad", "view_xx_ssp_xx"],
+            ["parallel_ad_abs_pos", "parallel_xx_abs_pos"],
+            ["parallel_ad_pos", "parallel_xx_pos"],
+            ["ad_infinite_init", "xx_infinite_init"],
+            ["ad_and_content", "xx_and_content"],
+            ["native_ad_pos", "native_xx_pos"],
+            ["last_ad_type", "last_xx_type"],
+            ["ad_abs_seq", "xx_abs_seq"],
+            ["ad_abs_pos", "xx_abs_pos"],
+            ["ad_count", "xx_count"],
+            ["adload", "xxload"],
+            ["ad_pos", "xx_pos"],
             ["gdt_vid", "xxx_vid"],
             ["qz_gdt", "qz_xxx"],
             ["jump_add_extra_info", "jump_xxx_extra_info"],
@@ -336,6 +371,14 @@ try {
             ["video_ad/mini_game_feeds", "video_xx/mini_game_feeds"],
             ["ad.viploading", "xx.viploading"],
             ["ad.userinfo.vip", "xx.userinfo.vip"],
+            ["WxProgram", "XxProgram"],
+            ["wx_appid", "xx_appid"],
+            ["WX_APPID", "XX_APPID"],
+            ["weixinadinfo", "weixinxxinfo"],
+            ["SITE_SET_WECHAT", "SITE_SET_XXCHAT"],
+            ["WECHAT", "XXCHAT"],
+            ["nativeOpenAdCanvas", "nativeOpenXxCanvas"],
+            ["OpenAdCanvas", "OpenXxCanvas"],
             ["AdFeedImagePoster", "XxFeedImagePoster"],
             ["AdFocusPoster", "XxFocusPoster"],
             ["AdFeedVideoPoster", "XxFeedVideoPoster"],
@@ -351,7 +394,8 @@ try {
             ["vip_ad_promotion", "vip_xx_promotion"],
             ["view_ad_ssp", "view_xx_ssp"],
             ["ServerAdFeedsVideo", "ServerXxFeedsVideo"],
-            ["serveradfeedsvideo", "serverxxfeedsvideo"]
+            ["serveradfeedsvideo", "serverxxfeedsvideo"],
+            ["GsADCoIB", "GsXXCoIB"]
           ];
 
           for (const [needle, replacement] of swaps) {
