@@ -38,7 +38,19 @@ const expectedMitmHosts = [
   "disp-qryapi.3g.qq.com",
   "richmedia.video.qq.com",
   "iacc.qq.com",
-  "iacc.rec.qq.com"
+  "iacc.rec.qq.com",
+  "pgdt.gtimg.cn",
+  "dldir1.qq.com",
+  "v3.gdt.qq.com",
+  "c3.gdt.qq.com",
+  "p2.l.qq.com"
+];
+
+const expectedDirectRejectRules = [
+  { name: "pgdt.gtimg.cn", regex: /^\^https\?:\\\/\\\/pgdt\\\.gtimg\\\.cn\\\/.*\burl\s+reject\b/m },
+  { name: "dldir1.qq.com/qqmi/video_ad", regex: /^\^https\?:\\\/\\\/dldir1\\\.qq\\\.com\\\/qqmi\\\/video_ad\\\/.*\burl\s+reject\b/m },
+  { name: "v3/c3.gdt.qq.com", regex: /^\^https\?:\\\/\\\/\(\?:v3\|c3\)\\\.gdt\\\.qq\\\.com\\\/.*\burl\s+reject-dict\b/m },
+  { name: "p2.l.qq.com", regex: /^\^https\?:\\\/\\\/p2\\\.l\\\.qq\\\.com\\\/.*\burl\s+reject-dict\b/m }
 ];
 
 const requestMarkers = [
@@ -130,6 +142,26 @@ const responseMarkers = [
   "ad_nfb_repetition",
   "ad_nfb_direct_close",
   "ad_nfb_dislike_brand",
+  "ad_vid",
+  "ad_is_bidding",
+  "ad_product_id",
+  "ad_flush_num",
+  "ad_highlight",
+  "ad_pr_id",
+  "ad_trans_native",
+  "ad_duration",
+  "ad_reportkey_scd",
+  "ad_cast_type",
+  "ad_interaction_type",
+  "ad_reportkey_fst",
+  "ad_is_fail",
+  "ad_empty_reason",
+  "ad_old_action_type",
+  "ad_norms",
+  "ad_orderid",
+  "ad_report_params",
+  "ad_return_num",
+  "ad_num",
   "WxProgram",
   "weixinadinfo",
   "SITE_SET_WECHAT",
@@ -317,12 +349,6 @@ const paginationResponseStateMarkers = [
   "rerank_ad_info",
   "is_locked_ad",
   "is_converted_native_ad",
-  "ad_nfb_none_view",
-  "ad_nfb_bad_content",
-  "ad_nfb_dislike",
-  "ad_nfb_repetition",
-  "ad_nfb_direct_close",
-  "ad_nfb_dislike_brand",
   "content_type_ad",
   "select_ad_type"
 ];
@@ -778,10 +804,19 @@ for (const dir of captureDirs) {
   }
 }
 
+const rejectLines = conf.split(/\r?\n/).filter((line) => /\burl\s+reject/.test(line));
+function isAllowedDirectRejectLine(line) {
+  return line.includes("pgdt\\.gtimg\\.cn")
+    || line.includes("dldir1\\.qq\\.com\\/qqmi\\/video_ad")
+    || line.includes("(?:v3|c3)\\.gdt\\.qq\\.com")
+    || line.includes("p2\\.l\\.qq\\.com");
+}
+
 const stats = {
   captureDirs: captureDirs.length,
   entries: entryDirs.size,
-  rejectRules: (conf.match(/\burl\s+reject/g) || []).length,
+  rejectRules: rejectLines.length,
+  directMaterialRejectRules: rejectLines.filter(isAllowedDirectRejectLine).length,
   requestSamples: 0,
   requestChanged: 0,
   wrappedRequestEntries: 0,
@@ -868,8 +903,23 @@ if (paginationHardOut.length !== paginationHardProto.length) {
   });
 }
 
-if (stats.rejectRules !== 0) {
-  issues.push({ type: "config.rejectRules", sample: "TencentVideo-Safe.conf", detail: `${stats.rejectRules} reject rules found` });
+for (const expected of expectedDirectRejectRules) {
+  if (!expected.regex.test(conf)) {
+    issues.push({
+      type: "config.directRejectMissing",
+      sample: "TencentVideo-Safe.conf",
+      detail: expected.name
+    });
+  }
+}
+for (const line of rejectLines) {
+  if (!isAllowedDirectRejectLine(line)) {
+    issues.push({
+      type: "config.unexpectedRejectRule",
+      sample: "TencentVideo-Safe.conf",
+      detail: line
+    });
+  }
 }
 
 for (const relativeFile of iaccRejectFiles) {
