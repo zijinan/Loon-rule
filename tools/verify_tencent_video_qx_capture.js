@@ -184,6 +184,14 @@ if (stats.rejectRules !== 0) {
   issues.push({ type: "config.rejectRules", sample: "TencentVideo-Safe.conf", detail: `${stats.rejectRules} reject rules found` });
 }
 
+if (/disp-qryapi\\.3g\\.qq\\.com.*script-response-body/.test(conf)) {
+  issues.push({
+    type: "config.dispatchResponseRewrite",
+    sample: "TencentVideo-Safe.conf",
+    detail: "disp-qryapi dispatch responses must not be cleaned; it removes normal unitResults"
+  });
+}
+
 for (const entryDir of entryDirs) {
   const url = requestUrl(entryDir);
   const reqBody = body(entryDir, "request");
