@@ -47,6 +47,8 @@ try {
       ["video_ad_ssp_feeds", "video_xx_ssp_feeds"],
       ["vip_ad_promotion", "vip_xx_promotion"],
       ["view_ad_ssp", "view_xx_ssp"],
+      ["iacc.qq.com", "iaxx.qq.com"],
+      ["iacc.rec.qq.com", "iaxx.rec.qq.com"],
       ["advertiser=", "xvertiserx="],
       ["creative_finger_print=", "creative_xinger_xrint="]
     ];

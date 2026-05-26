@@ -12,6 +12,7 @@ Safety:
 */
 
 const MAX_BODY_SIZE = 1024 * 1024;
+const url = ($request && $request.url) || "";
 const body = ($response && $response.body) || "";
 const headers = ($response && $response.headers) || {};
 
@@ -54,7 +55,11 @@ try {
         "ad.userinfo.vip",
         "vip_ad_promotion",
         "vip.image.video.qpic.cn/wupload/xy/promotiontest",
-        "vfiles.gtimg.cn/wupload/xy/promotiontest"
+        "vfiles.gtimg.cn/wupload/xy/promotiontest",
+        "vfiles.gtimg.cn/wupload/xy/starter",
+        "vfiles.gtimg.cn/wupload/xy/universal",
+        "vfiles.gtimg.cn/wuji_dashboard/xy/starter",
+        "vip.image.video.qpic.cn/vupload/20221226"
       ];
 
       const materialMarkers = [
@@ -62,6 +67,9 @@ try {
         "v3.gdt.qq.com/gdt_stats.fcg",
         "review.gdtimg.com/qzone/biz/gdt",
         "nc.gdt.qq.com/gdt_report.fcg",
+        "tytx.m.cn.miaozhen.com",
+        "m.v.qq.com/activity/qqvideo/interact/vod.html",
+        "i.gtimg.cn/qqlive/images/20180111",
         "adfeedimageposter",
         "adfocusposter",
         "adfeedvideoposter"
@@ -71,13 +79,18 @@ try {
       const hasSmallPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some((x) => text.includes(x));
       const hasAdMaterial = materialMarkers.some((x) => text.includes(x));
       const hasTencentVideoProto = text.includes("qqlive_rsp_head") || text.includes("trpc.ovb_galaxy") || text.includes("trpc.access.video_access_app");
+      const hasSplashConfig = url.includes("config.ab.qq.com/tab/GetTabRemoteConfig") && (text.includes("adsplash") || text.includes("splash") || text.includes("launch"));
 
       if ((hasAdOnlyModule || hasSmallPromotionModule) && (hasAdMaterial || hasTencentVideoProto)) {
         // This response is an embedded Tencent ad module, not a video segment.
         // Emptying it is safer than trying to rewrite protobuf length fields.
         output = "";
-      } else if (hasAdMaterial || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
+      } else if (hasSplashConfig || hasAdMaterial || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
         const swaps = [
+          ["adsplash_online_network", "xxsplxsh_offlin_network"],
+          ["adsplash", "xxsplxsh"],
+          ["splash", "xplash"],
+          ["launch", "xaunch"],
           ["pgdt.gtimg.cn", "pgdt.gtimg.zz"],
           ["v3.gdt.qq.com", "xx.gdt.qq.com"],
           ["vr.gdt.qq.com", "xx.gdt.qq.com"],
@@ -89,6 +102,11 @@ try {
           ["iacc.rec.qq.com", "iaxx.rec.qq.com"],
           ["vfiles.gtimg.cn", "vfiles.gtimg.zz"],
           ["vip.image.video.qpic.cn", "vip.image.video.qpic.zz"],
+          ["i.gtimg.cn", "i.gtimg.zz"],
+          ["tytx.m.cn.miaozhen.com", "tytx.m.cn.miaozhen.bad"],
+          ["m.v.qq.com", "m.x.qq.com"],
+          ["starter", "stxrter"],
+          ["universal", "unxversal"],
           ["AdFeedImagePoster", "XxFeedImagePoster"],
           ["AdFocusPoster", "XxFocusPoster"],
           ["AdFeedVideoPoster", "XxFeedVideoPoster"],
