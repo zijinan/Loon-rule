@@ -43,14 +43,18 @@ const expectedMitmHosts = [
   "dldir1.qq.com",
   "v3.gdt.qq.com",
   "c3.gdt.qq.com",
-  "p2.l.qq.com"
+  "p2.l.qq.com",
+  "vip.image.video.qpic.cn",
+  "vfiles.gtimg.cn"
 ];
 
 const expectedDirectRejectRules = [
   { name: "pgdt.gtimg.cn", regex: /^\^https\?:\\\/\\\/pgdt\\\.gtimg\\\.cn\\\/.*\burl\s+reject\b/m },
   { name: "dldir1.qq.com/qqmi/video_ad", regex: /^\^https\?:\\\/\\\/dldir1\\\.qq\\\.com\\\/qqmi\\\/video_ad\\\/.*\burl\s+reject\b/m },
   { name: "v3/c3.gdt.qq.com", regex: /^\^https\?:\\\/\\\/\(\?:v3\|c3\)\\\.gdt\\\.qq\\\.com\\\/.*\burl\s+reject-dict\b/m },
-  { name: "p2.l.qq.com", regex: /^\^https\?:\\\/\\\/p2\\\.l\\\.qq\\\.com\\\/.*\burl\s+reject-dict\b/m }
+  { name: "p2.l.qq.com", regex: /^\^https\?:\\\/\\\/p2\\\.l\\\.qq\\\.com\\\/.*\burl\s+reject-dict\b/m },
+  { name: "cold launch splash zip", regex: /vip\\\.image\\\.video\\\.qpic\\\.cn\\\/vupload\\\/20221226\\\/99fe431672021919301\\\.zip.*\burl\s+reject\b/ },
+  { name: "promotionTest resources", regex: /\(\?:vfiles\\\.gtimg\\\.cn\|vip\\\.image\\\.video\\\.qpic\\\.cn\)\\\/wupload\\\/xy\\\/promotionTest\\\/.*\burl\s+reject\b/ }
 ];
 
 const requestMarkers = [
@@ -374,7 +378,9 @@ const directMaterialPatterns = [
   { name: "dldir1.qq.com/qqmi/video_ad", regex: /^https?:\/\/dldir1\.qq\.com\/qqmi\/video_ad\// },
   { name: "v3.gdt.qq.com", regex: /^https?:\/\/v3\.gdt\.qq\.com\// },
   { name: "c3.gdt.qq.com", regex: /^https?:\/\/c3\.gdt\.qq\.com\// },
-  { name: "p2.l.qq.com", regex: /^https?:\/\/p2\.l\.qq\.com\// }
+  { name: "p2.l.qq.com", regex: /^https?:\/\/p2\.l\.qq\.com\// },
+  { name: "cold launch splash zip", regex: /^https?:\/\/vip\.image\.video\.qpic\.cn\/vupload\/20221226\/99fe431672021919301\.zip/ },
+  { name: "promotionTest resources", regex: /^https?:\/\/(?:vfiles\.gtimg\.cn|vip\.image\.video\.qpic\.cn)\/wupload\/xy\/promotionTest\// }
 ];
 
 const provenanceLookback = 12;
@@ -809,7 +815,9 @@ function isAllowedDirectRejectLine(line) {
   return line.includes("pgdt\\.gtimg\\.cn")
     || line.includes("dldir1\\.qq\\.com\\/qqmi\\/video_ad")
     || line.includes("(?:v3|c3)\\.gdt\\.qq\\.com")
-    || line.includes("p2\\.l\\.qq\\.com");
+    || line.includes("p2\\.l\\.qq\\.com")
+    || line.includes("vip\\.image\\.video\\.qpic\\.cn\\/vupload\\/20221226\\/99fe431672021919301\\.zip")
+    || line.includes("(?:vfiles\\.gtimg\\.cn|vip\\.image\\.video\\.qpic\\.cn)\\/wupload\\/xy\\/promotionTest");
 }
 
 const stats = {
