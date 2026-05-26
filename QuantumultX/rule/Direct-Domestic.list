@@ -1,0 +1,55 @@
+# NAME: Direct-Domestic
+# DESC: Domestic login, payment, shopping, CDN, Tencent, WeChat, QQ, and BiliBili DIRECT rules for Quantumult X.
+
+HOST,captive.apple.com
+HOST,guzzoni.apple.com
+HOST-SUFFIX,local
+HOST-SUFFIX,lan
+HOST-SUFFIX,cn
+
+# Apple China/CDN stability.
+HOST-SUFFIX,apple.com
+HOST-SUFFIX,apple.com.cn
+HOST-SUFFIX,icloud.com
+HOST-SUFFIX,mzstatic.com
+HOST-SUFFIX,aaplimg.com
+HOST-SUFFIX,cdn-apple.com
+
+# WeChat / QQ / Tencent.
+HOST-SUFFIX,weixin.qq.com
+HOST-SUFFIX,wechat.com
+HOST-SUFFIX,wechatapp.com
+HOST-SUFFIX,servicewechat.com
+HOST-SUFFIX,tenpay.com
+HOST-SUFFIX,qq.com
+HOST-SUFFIX,tencent.com
+HOST-SUFFIX,gtimg.com
+HOST-SUFFIX,gtimg.cn
+HOST-SUFFIX,qpic.cn
+HOST-SUFFIX,qlogo.cn
+HOST-SUFFIX,qcloud.com
+HOST-SUFFIX,myqcloud.com
+HOST-SUFFIX,tencent-cloud.com
+HOST-SUFFIX,tencent-cloud.net
+HOST-KEYWORD,weixin
+HOST-KEYWORD,wechat
+
+# Payment, shopping, maps, domestic CDN.
+HOST-SUFFIX,alicdn.com
+HOST-SUFFIX,aliyuncs.com
+HOST-SUFFIX,alipay.com
+HOST-SUFFIX,alipayobjects.com
+HOST-SUFFIX,taobao.com
+HOST-SUFFIX,tmall.com
+HOST-SUFFIX,jd.com
+HOST-SUFFIX,jd.hk
+HOST-SUFFIX,360buyimg.com
+HOST-SUFFIX,amap.com
+HOST-SUFFIX,autonavi.com
+HOST-SUFFIX,bdstatic.com
+HOST-SUFFIX,baidu.com
+
+# BiliBili.
+HOST-SUFFIX,bilibili.com
+HOST-SUFFIX,bilivideo.com
+HOST-SUFFIX,hdslb.com

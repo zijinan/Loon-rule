@@ -1,0 +1,14 @@
+# NAME: AI
+# DESC: AI service rules for Quantumult X.
+
+HOST-SUFFIX,openai.com
+HOST-SUFFIX,chatgpt.com
+HOST-SUFFIX,oaistatic.com
+HOST-SUFFIX,oaiusercontent.com
+HOST-SUFFIX,chat.openai.com
+HOST-SUFFIX,anthropic.com
+HOST-SUFFIX,claude.ai
+HOST,gemini.google.com
+HOST-SUFFIX,generativelanguage.googleapis.com
+HOST-SUFFIX,perplexity.ai
+HOST-SUFFIX,pplx.ai

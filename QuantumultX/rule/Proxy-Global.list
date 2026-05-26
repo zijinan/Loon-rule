@@ -1,0 +1,19 @@
+# NAME: Proxy-Global
+# DESC: Global social, search, and developer-adjacent domains for Quantumult X.
+
+HOST-SUFFIX,google.com
+HOST-SUFFIX,googleapis.com
+HOST-SUFFIX,gstatic.com
+HOST-SUFFIX,googleusercontent.com
+HOST-SUFFIX,facebook.com
+HOST-SUFFIX,fbcdn.net
+HOST-SUFFIX,instagram.com
+HOST-SUFFIX,cdninstagram.com
+HOST-SUFFIX,twitter.com
+HOST-SUFFIX,x.com
+HOST-SUFFIX,t.co
+HOST-SUFFIX,twimg.com
+HOST-SUFFIX,github.com
+HOST-SUFFIX,githubusercontent.com
+HOST-SUFFIX,githubassets.com
+HOST-SUFFIX,gitlab.com
