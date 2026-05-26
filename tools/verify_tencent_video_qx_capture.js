@@ -14,6 +14,16 @@ const conf = fs.readFileSync(path.join(repoRoot, "QuantumultX/rewrite/TencentVid
 
 const requestUrls = /^https:\/\/(i\.video\.qq\.com\/|disp-qryapi\.3g\.qq\.com\/v1\/dispatch|(?:vv|vv6)\.video\.qq\.com\/getvinfo)/;
 
+const expectedMitmHosts = [
+  "i.video.qq.com",
+  "vv.video.qq.com",
+  "vv6.video.qq.com",
+  "tab.video.qq.com",
+  "config.ab.qq.com",
+  "disp-qryapi.3g.qq.com",
+  "richmedia.video.qq.com"
+];
+
 const requestMarkers = [
   "ServerAdFeedsVideo",
   "serveradfeedsvideo",
@@ -181,6 +191,12 @@ function addIssue(issues, type, entryDir, detail) {
   });
 }
 
+function configuredMitmHosts() {
+  const match = conf.match(/^hostname\s*=\s*(.*)$/m);
+  if (!match) return [];
+  return match[1].split(",").map((host) => host.trim()).filter(Boolean);
+}
+
 const captureDirs = fs.readdirSync(captureRoot, { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && entry.name.startsWith("capture_"))
   .map((entry) => path.join(captureRoot, entry.name));
@@ -207,6 +223,7 @@ const stats = {
   jsonNoopSamples: 0,
   jsonCleanSamples: 0,
   jsonCleanChanged: 0,
+  mitmHosts: configuredMitmHosts().length,
   keep: Object.fromEntries(keepNeedles.map((needle) => [needle, { total: 0, kept: 0 }]))
 };
 
@@ -230,6 +247,18 @@ if (/(playproxy\\.video\\.qq\\.com|rdelivery\\.qq\\.com).*script-response-body/.
     sample: "TencentVideo-Safe.conf",
     detail: "playproxy/rdelivery JSON responses were no-op in captures and should not be MITM rewritten"
   });
+}
+
+const mitmHosts = configuredMitmHosts();
+for (const host of expectedMitmHosts) {
+  if (!mitmHosts.includes(host)) {
+    issues.push({ type: "config.mitmMissing", sample: "TencentVideo-Safe.conf", detail: host });
+  }
+}
+for (const host of mitmHosts) {
+  if (!expectedMitmHosts.includes(host)) {
+    issues.push({ type: "config.mitmUnexpected", sample: "TencentVideo-Safe.conf", detail: host });
+  }
 }
 
 for (const entryDir of entryDirs) {
