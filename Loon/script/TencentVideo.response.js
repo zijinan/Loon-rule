@@ -1,7 +1,6 @@
 /*
  * Tencent Video JSON response cleaner for Loon.
  *
- * Ported from QuantumultX/scripts/tencent_video_ad.js.
  * Handles only small JSON/text responses and skips video/image/protobuf bodies.
  */
 

@@ -1,7 +1,6 @@
 /*
  * Tencent Video protobuf/binary response ad guard for Loon.
  *
- * Ported from QuantumultX/scripts/tencent_video_proto_ad.js.
  * Clears only small ad-only modules; large feed/detail responses pass through.
  */
 
