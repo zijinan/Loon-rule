@@ -1,5 +1,5 @@
 #!name= Tencent Video Safe AdBlock
-#!desc= Low-power Tencent Video ad cleaner for Loon. Request-stage script only, with rule/rewrite blocking for GDT materials, splash/loading assets, telemetry, and known ad config endpoints.
+#!desc= Tencent Video ad cleaner ported to Loon syntax. Uses request + response scripts for effectiveness, while keeping response hooks scoped to known small/API endpoints.
 #!author= zijinan
 #!homepage= https://github.com/zijinan/Loon-rule
 #!date= 2026-05-26
@@ -31,11 +31,8 @@ DOMAIN-SUFFIX,l.qq.com,REJECT
 DOMAIN-SUFFIX,snowflake.qq.com,REJECT
 
 [Rewrite]
-^https?:\/\/(?:config\.ab\.qq\.com|tab\.video\.qq\.com)\/tab\/GetTabRemoteConfig - reject-dict
 ^https?:\/\/config\.ab\.qq\.com\/tab\/GetTabToggle - reject-dict
-^https?:\/\/appcfg\.v\.qq\.com\/getconf - reject-dict
-^https?:\/\/rdelivery\.qq\.com\/(?:v3\/config\/pull|v1\/sdkconfig\/get|v1\/statistic\/report) - reject-dict
-^https?:\/\/playproxy\.video\.qq\.com\/monet\/comm_resource\/get - reject-dict
+^https?:\/\/rdelivery\.qq\.com\/(?:v1\/sdkconfig\/get|v1\/statistic\/report) - reject-dict
 ^https?:\/\/iwan\.video\.qq\.com\/trpc\.vgopen\.mini_game_detail\.MiniGameDetail\/GetPreloadGames - reject-dict
 ^https?:\/\/vfiles\.gtimg\.cn\/wupload\/ad_control_config_test\.ad_copy_pic_url_conf\/ - reject
 ^https?:\/\/vfiles\.gtimg\.cn\/wupload\/xy\/promotionTest\/ - reject
@@ -47,6 +44,11 @@ DOMAIN-SUFFIX,snowflake.qq.com,REJECT
 [Script]
 http-request ^https?:\/\/i\.video\.qq\.com\/?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.safe.js, tag=TencentVideo-Request-Clean, requires-body=true, binary-body-mode=true, timeout=8, enable=true
 http-request ^https?:\/\/(?:vv|vv6)\.video\.qq\.com\/getvinfo script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.safe.js, tag=TencentVideo-GetVInfo-Clean, requires-body=true, timeout=8, enable=true
+http-response ^https?:\/\/i\.video\.qq\.com\/?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.proto.js, tag=TencentVideo-Proto-Clean, requires-body=true, binary-body-mode=true, timeout=10, enable=true
+http-response ^https?:\/\/playproxy\.video\.qq\.com\/monet\/comm_resource\/get script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.response.js, tag=TencentVideo-Monet-Clean, requires-body=true, timeout=8, enable=true
+http-response ^https?:\/\/(?:tab\.video|config\.ab)\.qq\.com\/tab\/GetTabRemoteConfig script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.response.js, tag=TencentVideo-TabConfig-Clean, requires-body=true, timeout=8, enable=true
+http-response ^https?:\/\/appcfg\.v\.qq\.com\/getconf script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.response.js, tag=TencentVideo-AppCfg-Clean, requires-body=true, timeout=8, enable=true
+http-response ^https?:\/\/rdelivery\.qq\.com\/v3\/config\/pull script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.response.js, tag=TencentVideo-Rdelivery-Clean, requires-body=true, timeout=8, enable=true
 
 [MITM]
 hostname = i.video.qq.com, vv.video.qq.com, vv6.video.qq.com, rdelivery.qq.com, appcfg.v.qq.com, tab.video.qq.com, config.ab.qq.com, playproxy.video.qq.com, iwan.video.qq.com, vfiles.gtimg.cn, vip.image.video.qpic.cn, i.gtimg.cn, dldir1.qq.com
