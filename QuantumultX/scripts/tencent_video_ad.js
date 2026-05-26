@@ -214,8 +214,10 @@ function clean(value) {
       if ((trimmed.startsWith("{") || trimmed.startsWith("[")) && AD_NEEDLES.some((needle) => trimmed.toLowerCase().includes(needle))) {
         try {
           const nested = JSON.parse(trimmed);
+          const nestedOriginal = JSON.stringify(nested);
           clean(nested);
-          value[key] = JSON.stringify(nested);
+          const nestedCleaned = JSON.stringify(nested);
+          if (nestedCleaned !== nestedOriginal) value[key] = nestedCleaned;
           continue;
         } catch (_) {}
       }
@@ -237,38 +239,47 @@ function clean(value) {
 }
 
 try {
-  if (!isProbablyJson()) finish();
+  if (!isProbablyJson()) {
+    finish();
+  } else {
+    let prefix = "";
+    let isChunked = false;
+    let jsonBody = body;
+    const chunkedJson = decodeChunked(body);
+    if (chunkedJson !== undefined) {
+      isChunked = true;
+      jsonBody = chunkedJson;
+    }
 
-  let prefix = "";
-  let isChunked = false;
-  let jsonBody = body;
-  const chunkedJson = decodeChunked(body);
-  if (chunkedJson !== undefined) {
-    isChunked = true;
-    jsonBody = chunkedJson;
-  }
+    const prefixedJson = body.match(/^(\d{3}\s+)([\s\S]*[\]}])\s*$/);
+    if (!isChunked && prefixedJson) {
+      prefix = prefixedJson[1];
+      jsonBody = prefixedJson[2];
+    }
 
-  const prefixedJson = body.match(/^(\d{3}\s+)([\s\S]*[\]}])\s*$/);
-  if (!isChunked && prefixedJson) {
-    prefix = prefixedJson[1];
-    jsonBody = prefixedJson[2];
-  }
+    const obj = JSON.parse(jsonBody);
+    const originalCanonical = JSON.stringify(obj);
 
-  const obj = JSON.parse(jsonBody);
-
-  // Tencent Video monet resource endpoint observed in capture.
-  // Keep quality/player resources and only remove ad-like resource entries.
-  if (url.includes("/monet/comm_resource/get")) {
-    for (const key of ["comm_resources", "commResources", "resources", "resource_list", "resourceList"]) {
-      if (Array.isArray(obj[key])) {
-        obj[key] = obj[key].filter((item) => !isAdObject(item));
+    // Tencent Video monet resource endpoint observed in capture.
+    // Keep quality/player resources and only remove ad-like resource entries.
+    if (url.includes("/monet/comm_resource/get")) {
+      for (const key of ["comm_resources", "commResources", "resources", "resource_list", "resourceList"]) {
+        if (Array.isArray(obj[key])) {
+          obj[key] = obj[key].filter((item) => !isAdObject(item));
+        }
       }
+    }
+
+    clean(obj);
+    const cleanedJson = JSON.stringify(obj);
+    if (cleanedJson === originalCanonical) {
+      finish();
+    } else {
+      const cleaned = prefix + cleanedJson;
+      finish(isChunked ? encodeSingleChunk(cleaned) : cleaned);
     }
   }
 
-  clean(obj);
-  const cleaned = prefix + JSON.stringify(obj);
-  finish(isChunked ? encodeSingleChunk(cleaned) : cleaned);
 } catch (_) {
   finish();
 }
