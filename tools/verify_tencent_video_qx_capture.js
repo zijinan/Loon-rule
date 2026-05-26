@@ -127,7 +127,8 @@ const iaccHeaderMarkers = [
   "appid=wx",
   "v_t_appid=wx",
   "main_login=wx",
-  "v_main_login=wx"
+  "v_main_login=wx",
+  "qad_device_platform=5"
 ];
 
 const iaccBodyMarkers = [

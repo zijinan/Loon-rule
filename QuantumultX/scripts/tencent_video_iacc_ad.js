@@ -69,6 +69,7 @@ function neutralizeText(source) {
 
 function neutralizeCookie(source) {
   let rewritten = String(source || "");
+  rewritten = replaceLiteral(rewritten, "qad_device_platform=5", "qxx_device_platform=0");
   rewritten = rewritten.replace(/(^|;\s*)(v_t_appid|appid)=wx([0-9a-f]{16})/gi, "$1$2=xx$3");
   rewritten = rewritten.replace(/(^|;\s*)(v_main_login|main_login)=wx(?=;|$)/gi, "$1$2=xx");
   return rewritten;
