@@ -204,6 +204,11 @@ function clean(value) {
     const normalized = key.toLowerCase().replace(/[-\s]/g, "_");
     const compact = normalized.replace(/_/g, "");
 
+    if (normalized.startsWith("tvk_tab_config_ad_")) {
+      delete value[key];
+      continue;
+    }
+
     if (EXACT_EMPTY_KEYS.has(normalized) || EXACT_EMPTY_KEYS.has(compact) || AD_KEY_RE.test(normalized)) {
       value[key] = emptyValue(value[key]);
       continue;
@@ -239,7 +244,9 @@ function clean(value) {
 }
 
 try {
-  if (!isProbablyJson()) {
+  if (/^https?:\/\/disp-qryapi\.3g\.qq\.com\/v1\/dispatch/.test(url)) {
+    finish();
+  } else if (!isProbablyJson()) {
     finish();
   } else {
     let prefix = "";

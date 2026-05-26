@@ -9,6 +9,7 @@ const captureRoot = path.resolve(process.argv[2] || path.join(repoRoot, ".."));
 
 const requestScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_request_ad.js"), "utf8");
 const responseScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_proto_ad.js"), "utf8");
+const jsonScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_ad.js"), "utf8");
 const conf = fs.readFileSync(path.join(repoRoot, "QuantumultX/rewrite/TencentVideo-Safe.conf"), "utf8");
 
 const requestUrls = /^https:\/\/(i\.video\.qq\.com\/|disp-qryapi\.3g\.qq\.com\/v1\/dispatch|(?:vv|vv6)\.video\.qq\.com\/getvinfo)/;
@@ -56,6 +57,22 @@ const keepNeedles = [
   "wuji_dashboard/xy/starter",
   "topic-feeds-in-video",
   "phoneScreencast.feedBackQrCode"
+];
+
+const jsonNoopUrls = [
+  /^https:\/\/disp-qryapi\.3g\.qq\.com\/v1\/dispatch/,
+  /^https:\/\/appcfg\.v\.qq\.com\/getconf/
+];
+
+const jsonCleanUrls = [
+  /^https:\/\/tab\.video\.qq\.com\/tab\/GetTabRemoteConfig/,
+  /^https:\/\/richmedia\.video\.qq\.com\/get_rich_media_info/
+];
+
+const jsonCleanMarkers = [
+  "tvk_tab_config_ad_asycn_call",
+  "ad_frame_time",
+  "type_ad_frame_time"
 ];
 
 function walk(dir, files = []) {
@@ -134,6 +151,18 @@ function runResponse(url, source, headers) {
   return result && typeof result.body === "string" ? result.body : source;
 }
 
+function runJsonResponse(url, source, headers) {
+  let result;
+  vm.runInNewContext(jsonScript, {
+    $request: { url },
+    $response: { body: source, headers },
+    $done: (value) => {
+      result = value || {};
+    }
+  }, { timeout: 1000 });
+  return result && typeof result.body === "string" ? result.body : source;
+}
+
 function includesAny(source, needles) {
   const lower = source.toLowerCase();
   return needles.some((needle) => (/[A-Z]/.test(needle) ? source : lower).includes(/[A-Z]/.test(needle) ? needle : needle.toLowerCase()));
@@ -175,6 +204,9 @@ const stats = {
   responseChanged: 0,
   splashSamples: 0,
   splashChanged: 0,
+  jsonNoopSamples: 0,
+  jsonCleanSamples: 0,
+  jsonCleanChanged: 0,
   keep: Object.fromEntries(keepNeedles.map((needle) => [needle, { total: 0, kept: 0 }]))
 };
 
@@ -196,6 +228,7 @@ for (const entryDir of entryDirs) {
   const url = requestUrl(entryDir);
   const reqBody = body(entryDir, "request");
   const respBody = body(entryDir, "response");
+  const headers = responseHeaders(entryDir);
 
   if (requestUrls.test(url) && reqBody && includesAny(reqBody, requestMarkers)) {
     stats.requestSamples += 1;
@@ -208,10 +241,24 @@ for (const entryDir of entryDirs) {
 
   if (!respBody || respBody.length > 1024 * 1024) continue;
 
+  if (jsonNoopUrls.some((regex) => regex.test(url))) {
+    stats.jsonNoopSamples += 1;
+    const out = runJsonResponse(url, respBody, headers);
+    if (out !== respBody) addIssue(issues, "json.noopChanged", entryDir, url);
+  }
+
+  if (jsonCleanUrls.some((regex) => regex.test(url)) && includesAny(respBody, jsonCleanMarkers)) {
+    stats.jsonCleanSamples += 1;
+    const out = runJsonResponse(url, respBody, headers);
+    if (out !== respBody) stats.jsonCleanChanged += 1;
+    const rem = remaining(out, jsonCleanMarkers);
+    if (rem.length) addIssue(issues, "json.markerRemaining", entryDir, rem.join(", "));
+  }
+
   const isTencentVideoApi = /^https:\/\/i\.video\.qq\.com\//.test(url) || url.includes("config.ab.qq.com/tab/GetTabRemoteConfig");
   if (!isTencentVideoApi) continue;
 
-  const out = runResponse(url, respBody, responseHeaders(entryDir));
+  const out = runResponse(url, respBody, headers);
 
   if (/^https:\/\/i\.video\.qq\.com\//.test(url) && includesAny(respBody, responseMarkers)) {
     stats.responseSamples += 1;
@@ -242,6 +289,15 @@ if (stats.captureDirs === 0) issues.push({ type: "captures.missing", sample: cap
 if (stats.requestSamples === 0) issues.push({ type: "request.noSamples", sample: captureRoot, detail: "no ad request samples matched" });
 if (stats.responseSamples === 0) issues.push({ type: "response.noSamples", sample: captureRoot, detail: "no ad response samples matched" });
 if (stats.splashSamples === 0) issues.push({ type: "splash.noSamples", sample: captureRoot, detail: "no splash config samples matched" });
+if (stats.jsonNoopSamples === 0) issues.push({ type: "json.noopNoSamples", sample: captureRoot, detail: "no dispatch/appcfg noop samples matched" });
+if (stats.jsonCleanSamples === 0) issues.push({ type: "json.cleanNoSamples", sample: captureRoot, detail: "no tab/richmedia JSON ad samples matched" });
+if (stats.jsonCleanSamples !== stats.jsonCleanChanged) {
+  issues.push({
+    type: "json.cleanUnchanged",
+    sample: captureRoot,
+    detail: `${stats.jsonCleanChanged}/${stats.jsonCleanSamples} JSON ad samples changed`
+  });
+}
 
 console.log(JSON.stringify({ stats, issues: issues.slice(0, 50) }, null, 2));
 
