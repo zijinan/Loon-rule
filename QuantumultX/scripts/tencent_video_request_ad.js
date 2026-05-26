@@ -39,11 +39,16 @@ try {
       ["GetFollowHeartRewardAdInfoJ", "GetFollowHeartRewardXxInfoJ"],
       ["mod_trailer_ad", "mod_trailer_xx"],
       ["mod_recommend_ad", "mod_recommend_xx"],
+      ["AdFeedImagePoster", "XxFeedImagePoster"],
+      ["AdFocusPoster", "XxFocusPoster"],
+      ["AdFeedVideoPoster", "XxFeedVideoPoster"],
       ["reward_ad_ssp", "reward_xx_ssp"],
       ["reward_ad_ssp_service", "reward_xx_ssp_service"],
       ["video_ad_ssp_feeds", "video_xx_ssp_feeds"],
       ["vip_ad_promotion", "vip_xx_promotion"],
-      ["view_ad_ssp", "view_xx_ssp"]
+      ["view_ad_ssp", "view_xx_ssp"],
+      ["advertiser=", "xvertiserx="],
+      ["creative_finger_print=", "creative_xinger_xrint="]
     ];
 
     for (const [needle, replacement] of swaps) {

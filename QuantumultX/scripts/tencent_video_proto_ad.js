@@ -25,13 +25,19 @@ function header(name) {
 
 let output;
 
+function replaceLiteral(source, needle, replacement) {
+  if (!source || needle.length !== replacement.length) return source;
+  return source.split(needle).join(replacement);
+}
+
 try {
   if (body && body.length <= MAX_BODY_SIZE) {
     const ct = header("Content-Type").toLowerCase();
     const isMedia = ct.includes("image/") || ct.includes("video/") || ct.includes("mpegurl");
 
     if (!isMedia) {
-      const text = String(body).toLowerCase();
+      let rewritten = String(body);
+      const text = rewritten.toLowerCase();
 
       const adOnlyMarkers = [
         "mod_trailer_ad",
@@ -70,6 +76,36 @@ try {
         // This response is an embedded Tencent ad module, not a video segment.
         // Emptying it is safer than trying to rewrite protobuf length fields.
         output = "";
+      } else if (hasAdMaterial || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
+        const swaps = [
+          ["pgdt.gtimg.cn", "pgdt.gtimg.zz"],
+          ["v3.gdt.qq.com", "xx.gdt.qq.com"],
+          ["vr.gdt.qq.com", "xx.gdt.qq.com"],
+          ["xs.gdt.qq.com", "xx.gdt.qq.com"],
+          ["c3.gdt.qq.com", "xx.gdt.qq.com"],
+          ["nc.gdt.qq.com", "xx.gdt.qq.com"],
+          ["review.gdtimg.com", "revxxx.gdtimg.com"],
+          ["iacc.qq.com", "iaxx.qq.com"],
+          ["iacc.rec.qq.com", "iaxx.rec.qq.com"],
+          ["vfiles.gtimg.cn", "vfiles.gtimg.zz"],
+          ["vip.image.video.qpic.cn", "vip.image.video.qpic.zz"],
+          ["AdFeedImagePoster", "XxFeedImagePoster"],
+          ["AdFocusPoster", "XxFocusPoster"],
+          ["AdFeedVideoPoster", "XxFeedVideoPoster"],
+          ["adfeedimageposter", "xxfeedimageposter"],
+          ["adfocusposter", "xxfocusposter"],
+          ["adfeedvideoposter", "xxfeedvideoposter"],
+          ["advertiser=", "xvertiserx="],
+          ["creative_finger_print=", "creative_xinger_xrint="],
+          ["video_ad_ssp_feeds", "video_xx_ssp_feeds"],
+          ["serveradfeedsvideo", "serverxxfeedsvideo"]
+        ];
+
+        for (const [needle, replacement] of swaps) {
+          rewritten = replaceLiteral(rewritten, needle, replacement);
+        }
+
+        if (rewritten !== body) output = rewritten;
       }
     }
   }
