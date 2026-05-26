@@ -41,6 +41,57 @@ function isProbablyJson() {
   return trimmed.startsWith("{") || trimmed.startsWith("[");
 }
 
+function byteLength(text) {
+  let length = 0;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code <= 0x7f) {
+      length += 1;
+    } else if (code <= 0x7ff) {
+      length += 2;
+    } else if (code >= 0xd800 && code <= 0xdbff) {
+      length += 4;
+      i += 1;
+    } else {
+      length += 3;
+    }
+  }
+  return length;
+}
+
+function decodeChunked(source) {
+  let offset = 0;
+  let decoded = "";
+  let sawChunk = false;
+
+  while (offset < source.length) {
+    const lineEnd = source.indexOf("\r\n", offset);
+    if (lineEnd < 0) return undefined;
+
+    const sizeText = source.slice(offset, lineEnd).trim();
+    if (!/^[0-9a-f]+$/i.test(sizeText)) return undefined;
+
+    const size = parseInt(sizeText, 16);
+    offset = lineEnd + 2;
+
+    if (size === 0) {
+      return sawChunk ? decoded : undefined;
+    }
+
+    decoded += source.slice(offset, offset + size);
+    offset += size;
+    if (source.slice(offset, offset + 2) !== "\r\n") return undefined;
+    offset += 2;
+    sawChunk = true;
+  }
+
+  return undefined;
+}
+
+function encodeSingleChunk(source) {
+  return byteLength(source).toString(16) + "\r\n" + source + "\r\n0\r\n\r\n";
+}
+
 const EXACT_EMPTY_KEYS = new Set([
   "ad",
   "ads",
@@ -92,6 +143,8 @@ const AD_NEEDLES = [
   "i.gtimg.cn/qqlive/images/20180111/i1515679287_1.jpg",
   "m.v.qq.com/activity/qqvideo/interact/vod.html",
   "tytx.m.cn.miaozhen.com",
+  "ad_frame_time",
+  "type_ad_frame_time",
   "splash_ad",
   "launch_ad",
   "pre_ad",
@@ -167,6 +220,11 @@ function clean(value) {
       }
     }
 
+    if (Array.isArray(value[key])) {
+      clean(value[key]);
+      continue;
+    }
+
     if (isAdObject(value[key])) {
       value[key] = emptyValue(value[key]);
       continue;
@@ -180,7 +238,22 @@ function clean(value) {
 try {
   if (!isProbablyJson()) finish();
 
-  const obj = JSON.parse(body);
+  let prefix = "";
+  let isChunked = false;
+  let jsonBody = body;
+  const chunkedJson = decodeChunked(body);
+  if (chunkedJson !== undefined) {
+    isChunked = true;
+    jsonBody = chunkedJson;
+  }
+
+  const prefixedJson = body.match(/^(\d{3}\s+)([\s\S]*[\]}])\s*$/);
+  if (!isChunked && prefixedJson) {
+    prefix = prefixedJson[1];
+    jsonBody = prefixedJson[2];
+  }
+
+  const obj = JSON.parse(jsonBody);
 
   // Tencent Video monet resource endpoint observed in capture.
   // Keep quality/player resources and only remove ad-like resource entries.
@@ -193,7 +266,8 @@ try {
   }
 
   clean(obj);
-  finish(JSON.stringify(obj));
+  const cleaned = prefix + JSON.stringify(obj);
+  finish(isChunked ? encodeSingleChunk(cleaned) : cleaned);
 } catch (_) {
   finish();
 }

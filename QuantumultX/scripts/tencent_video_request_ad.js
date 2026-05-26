@@ -60,7 +60,10 @@ try {
     // vv.video.qq.com/getvinfo uses urlencoded form data for playback ads.
     if (/\/\/(?:vv|vv6)\.video\.qq\.com\/getvinfo/.test(url)) {
       body = replaceRegexStable(body, /spadseg=\d/g, () => "spadseg=0");
+      body = replaceRegexStable(body, /spadseg%3D\d/g, () => "spadseg%3D0");
+      body = replaceRegexStable(body, /spadseg%253D\d/g, () => "spadseg%253D0");
       body = replaceRegexStable(body, /pluginadctrl%3D\d/g, () => "pluginadctrl%3D0");
+      body = replaceRegexStable(body, /pluginadctrl%253D\d/g, () => "pluginadctrl%253D0");
       body = replaceRegexStable(body, /pluginadctrl=\d/g, () => "pluginadctrl=0");
     }
 
