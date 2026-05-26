@@ -53,7 +53,12 @@ try {
       ["iacc.qq.com", "iaxx.qq.com"],
       ["iacc.rec.qq.com", "iaxx.rec.qq.com"],
       ["advertiser=", "xvertiserx="],
-      ["creative_finger_print=", "creative_xinger_xrint="]
+      ["creative_finger_print=", "xreative_xinger_xrint="],
+      ["reward_xx_ssp_service", "reward_yy_xxp_service"],
+      ["reward_xx_ssp", "reward_yy_xxp"],
+      ["video_xx_ssp_feeds", "video_yy_xxp_feeds"],
+      ["video_xx_ssp", "video_yy_xxp"],
+      ["view_xx_ssp", "view_yy_xxp"]
     ];
 
     for (const [needle, replacement] of swaps) {

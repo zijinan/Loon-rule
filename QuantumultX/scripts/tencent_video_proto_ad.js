@@ -81,10 +81,22 @@ const JSON_AD_NEEDLES = [
   "mall.video.qq.com",
   "weixinadinfo",
   "nativeOpenAdCanvas",
+  "OpenAdCanvas",
   "SITE_SET_WECHAT",
   "wx_appid",
   "gdt/ams_ad_audit",
   "ams_ad_audit",
+  "click_id",
+  "click_ext",
+  "click_data",
+  "gdt_ad_id",
+  "dynamic_creative",
+  "pages/act/ams/union",
+  "AdOpenWxProgramAction",
+  "AdDownloadAction",
+  "openadcanvas",
+  "adopenwxprogramaction",
+  "addownloadaction",
   "tytx.m.cn.miaozhen.com",
   "ad_frame_time",
   "type_ad_frame_time",
@@ -229,7 +241,21 @@ try {
           "i.gtimg.cn/qqlive/images/20180111",
           "adfeedimageposter",
           "adfocusposter",
-          "adfeedvideoposter"
+          "adfeedvideoposter",
+          "adopenwxprogramaction",
+          "addownloadaction",
+          "openadcanvas",
+          "click_id",
+          "__click_id__",
+          "click_data",
+          "click_ext",
+          "__click_lpp__",
+          "clklpp",
+          "dynamic_creative",
+          "pages/act/ams/union",
+          "label=ams",
+          "zq_ams_v18",
+          "gdt_ad_id"
         ];
 
         const hasAdOnlyModule = body.length <= 64 * 1024 && adOnlyMarkers.some((x) => text.includes(x));
@@ -300,6 +326,26 @@ try {
             ["\"datatype\":5", "\"datatype\":0"],
             ["type.googleapis.com/com.tencent.qqlive.protocol.pb.Ad", "type.googleapis.com/com.tencent.qqlive.protocol.pb.Xx"],
             ["com.tencent.qqlive.protocol.pb.Ad", "com.tencent.qqlive.protocol.pb.Xx"],
+            ["AdOpenWxProgramAction", "XxStopXxProgramAction"],
+            ["XxOpenXxProgramAction", "XxStopXxProgramAction"],
+            ["OpenWxProgramAction", "StopXxProgramAction"],
+            ["OpenXxProgramAction", "StopXxProgramAction"],
+            ["AdDownloadAction", "XxDisabledAction"],
+            ["XxDownloadAction", "XxDisabledAction"],
+            ["http://c.l.qq.com/click", "http://x.l.qq.com/blank"],
+            ["click_id", "xxxxx_id"],
+            ["__CLICK_ID__", "__XXXXX_ID__"],
+            ["click_data", "xxxxx_data"],
+            ["click_ext", "xxxxx_ext"],
+            ["__CLICK_LPP__", "__XXXXX_LPP__"],
+            ["clklpp", "xxklpp"],
+            ["dynamic_creative_id", "dynamic_xreative_id"],
+            ["dynamic_creative", "dynamic_xreative"],
+            ["pages/act/ams/union", "pages/act/xxx/union"],
+            ["label=ams", "label=xxx"],
+            ["zq_ams_v18", "zq_xxx_v18"],
+            ["gdt_ad_id", "xxx_xx_id"],
+            ["gh_", "gx_"],
             ["InnerAdPromotionEventList", "InnerXxPromotionEventList"],
             ["mod_trailer_ad", "mod_trailer_xx"],
             ["mod_recommend_ad", "mod_recommend_xx"],
@@ -377,8 +423,10 @@ try {
             ["weixinadinfo", "weixinxxinfo"],
             ["SITE_SET_WECHAT", "SITE_SET_XXCHAT"],
             ["WECHAT", "XXCHAT"],
-            ["nativeOpenAdCanvas", "nativeOpenXxCanvas"],
-            ["OpenAdCanvas", "OpenXxCanvas"],
+            ["nativeOpenAdCanvas", "nativeStopXxCanvas"],
+            ["nativeOpenXxCanvas", "nativeStopXxCanvas"],
+            ["OpenAdCanvas", "StopXxCanvas"],
+            ["OpenXxCanvas", "StopXxCanvas"],
             ["AdFeedImagePoster", "XxFeedImagePoster"],
             ["AdFocusPoster", "XxFocusPoster"],
             ["AdFeedVideoPoster", "XxFeedVideoPoster"],
@@ -386,7 +434,8 @@ try {
             ["adfocusposter", "xxfocusposter"],
             ["adfeedvideoposter", "xxfeedvideoposter"],
             ["advertiser=", "xvertiserx="],
-            ["creative_finger_print=", "creative_xinger_xrint="],
+            ["creative_finger_print=", "xreative_xinger_xrint="],
+            ["creative_xinger_xrint", "xreative_xinger_xrint"],
             ["reward_ad_ssp_service", "reward_xx_ssp_service"],
             ["reward_ad_ssp", "reward_xx_ssp"],
             ["video_ad_ssp_feeds", "video_xx_ssp_feeds"],
@@ -395,6 +444,11 @@ try {
             ["view_ad_ssp", "view_xx_ssp"],
             ["ServerAdFeedsVideo", "ServerXxFeedsVideo"],
             ["serveradfeedsvideo", "serverxxfeedsvideo"],
+            ["view_xx_ssp", "view_yy_xxp"],
+            ["video_xx_ssp", "video_yy_xxp"],
+            ["reward_xx_ssp", "reward_yy_xxp"],
+            ["ssp_xx_type", "xxp_xx_type"],
+            ["ams_xx_type", "xxx_xx_type"],
             ["GsADCoIB", "GsXXCoIB"]
           ];
 
@@ -402,6 +456,10 @@ try {
             rewritten = replaceLiteral(rewritten, needle, replacement);
           }
 
+          rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9])wx([0-9a-f]{16})/gi, (match) => {
+            const prefix = match.slice(0, -18);
+            return `${prefix}xx${match.slice(prefix.length + 2)}`;
+          });
           rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ad_/g, (match) => `${match.slice(0, -3)}xx_`);
           rewritten = replaceRegexStable(rewritten, /(^|[^A-Za-z0-9_])ads_/g, (match) => `${match.slice(0, -4)}xxs_`);
 
