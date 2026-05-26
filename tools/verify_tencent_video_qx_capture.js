@@ -10,6 +10,7 @@ const captureRoot = path.resolve(process.argv[2] || path.join(repoRoot, ".."));
 const requestScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_request_ad.js"), "utf8");
 const responseScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_proto_ad.js"), "utf8");
 const jsonScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_ad.js"), "utf8");
+const iaccScript = fs.readFileSync(path.join(repoRoot, "QuantumultX/scripts/tencent_video_iacc_ad.js"), "utf8");
 const conf = fs.readFileSync(path.join(repoRoot, "QuantumultX/rewrite/TencentVideo-Safe.conf"), "utf8");
 
 const requestUrls = /^https:\/\/(i\.video\.qq\.com\/|disp-qryapi\.3g\.qq\.com\/v1\/dispatch|(?:vv|vv6)\.video\.qq\.com\/getvinfo)/;
@@ -21,7 +22,9 @@ const expectedMitmHosts = [
   "tab.video.qq.com",
   "config.ab.qq.com",
   "disp-qryapi.3g.qq.com",
-  "richmedia.video.qq.com"
+  "richmedia.video.qq.com",
+  "iacc.qq.com",
+  "iacc.rec.qq.com"
 ];
 
 const requestMarkers = [
@@ -114,6 +117,22 @@ const splashMarkers = [
   "ad_focus_strategy"
 ];
 
+const iaccHeaderMarkers = [
+  "appid=wx",
+  "v_t_appid=wx",
+  "main_login=wx",
+  "v_main_login=wx"
+];
+
+const iaccBodyMarkers = [
+  "PRE-DOWNLOAD",
+  "PRERANK",
+  "PROFILE",
+  "RANK-10",
+  "low_end_pad",
+  "wxca942bbff22e0e51"
+];
+
 const keepNeedles = [
   "load_type",
   "download_upload_setting",
@@ -197,6 +216,14 @@ function responseHeaders(entryDir) {
   return {};
 }
 
+function requestHeaders(entryDir) {
+  for (const name of ["request_headers", "request_header_raw.txt"]) {
+    const file = path.join(entryDir, name);
+    if (fs.existsSync(file)) return parseHeaders(readTextIfExists(file));
+  }
+  return {};
+}
+
 function body(entryDir, kind) {
   const names = kind === "request" ? ["request_body", "request_body_raw"] : ["response_body", "response_body_raw"];
   for (const name of names) {
@@ -232,6 +259,42 @@ function runResponse(url, source, headers) {
 function runJsonResponse(url, source, headers) {
   let result;
   vm.runInNewContext(jsonScript, {
+    $request: { url },
+    $response: { body: source, headers },
+    $done: (value) => {
+      result = value || {};
+    }
+  }, { timeout: 1000 });
+  return result && typeof result.body === "string" ? result.body : source;
+}
+
+function runIaccRequestHeader(url, headers) {
+  let result;
+  vm.runInNewContext(iaccScript, {
+    $request: { url, headers },
+    $response: undefined,
+    $done: (value) => {
+      result = value || {};
+    }
+  }, { timeout: 1000 });
+  return result && result.headers ? result.headers : headers;
+}
+
+function runIaccRequestBody(url, source) {
+  let result;
+  vm.runInNewContext(iaccScript, {
+    $request: { url, body: source },
+    $response: undefined,
+    $done: (value) => {
+      result = value || {};
+    }
+  }, { timeout: 1000 });
+  return result && typeof result.body === "string" ? result.body : source;
+}
+
+function runIaccResponse(url, source, headers) {
+  let result;
+  vm.runInNewContext(iaccScript, {
     $request: { url },
     $response: { body: source, headers },
     $done: (value) => {
@@ -300,6 +363,12 @@ const stats = {
   jsonNoopSamples: 0,
   jsonCleanSamples: 0,
   jsonCleanChanged: 0,
+  iaccHeaderSamples: 0,
+  iaccHeaderChanged: 0,
+  iaccRequestBodySamples: 0,
+  iaccRequestBodyChanged: 0,
+  iaccBodySamples: 0,
+  iaccBodyChanged: 0,
   mitmHosts: configuredMitmHosts().length,
   keep: Object.fromEntries(keepNeedles.map((needle) => [needle, { total: 0, kept: 0 }]))
 };
@@ -342,7 +411,38 @@ for (const entryDir of entryDirs) {
   const url = requestUrl(entryDir);
   const reqBody = body(entryDir, "request");
   const respBody = body(entryDir, "response");
+  const reqHeaders = requestHeaders(entryDir);
   const headers = responseHeaders(entryDir);
+
+  if (/^https?:\/\/iacc(?:\.rec)?\.qq\.com\//.test(url)) {
+    const cookie = reqHeaders.cookie || "";
+    if (cookie && includesAny(cookie, iaccHeaderMarkers)) {
+      stats.iaccHeaderSamples += 1;
+      const outHeaders = runIaccRequestHeader(url, reqHeaders);
+      const outCookie = outHeaders.cookie || "";
+      if (outCookie !== cookie) stats.iaccHeaderChanged += 1;
+      const rem = remaining(outCookie, iaccHeaderMarkers);
+      if (rem.length) addIssue(issues, "iacc.headerMarkerRemaining", entryDir, rem.join(", "));
+    }
+
+    if (reqBody && reqBody.length <= 128 * 1024 && includesAny(reqBody, iaccBodyMarkers)) {
+      stats.iaccRequestBodySamples += 1;
+      const out = runIaccRequestBody(url, reqBody);
+      if (out !== reqBody) stats.iaccRequestBodyChanged += 1;
+      if (out.length !== reqBody.length) addIssue(issues, "iacc.requestLengthChanged", entryDir, url);
+      const rem = remaining(out, iaccBodyMarkers);
+      if (rem.length) addIssue(issues, "iacc.requestBodyMarkerRemaining", entryDir, rem.join(", "));
+    }
+
+    if (respBody && respBody.length <= 128 * 1024 && includesAny(respBody, iaccBodyMarkers)) {
+      stats.iaccBodySamples += 1;
+      const out = runIaccResponse(url, respBody, headers);
+      if (out !== respBody) stats.iaccBodyChanged += 1;
+      if (out.length !== respBody.length) addIssue(issues, "iacc.lengthChanged", entryDir, url);
+      const rem = remaining(out, iaccBodyMarkers);
+      if (rem.length) addIssue(issues, "iacc.bodyMarkerRemaining", entryDir, rem.join(", "));
+    }
+  }
 
   if (requestUrls.test(url) && reqBody && includesAny(reqBody, requestMarkers)) {
     stats.requestSamples += 1;
@@ -400,6 +500,28 @@ if (stats.captureDirs === 0) issues.push({ type: "captures.missing", sample: cap
 if (stats.requestSamples === 0) issues.push({ type: "request.noSamples", sample: captureRoot, detail: "no ad request samples matched" });
 if (stats.responseSamples === 0) issues.push({ type: "response.noSamples", sample: captureRoot, detail: "no ad response samples matched" });
 if (stats.splashSamples === 0) issues.push({ type: "splash.noSamples", sample: captureRoot, detail: "no splash config samples matched" });
+if (stats.iaccHeaderSamples === 0) issues.push({ type: "iacc.headerNoSamples", sample: captureRoot, detail: "no iacc request header samples matched" });
+if (stats.iaccHeaderSamples !== stats.iaccHeaderChanged) {
+  issues.push({
+    type: "iacc.headerUnchanged",
+    sample: captureRoot,
+    detail: `${stats.iaccHeaderChanged}/${stats.iaccHeaderSamples} iacc request header samples changed`
+  });
+}
+if (stats.iaccRequestBodySamples !== stats.iaccRequestBodyChanged) {
+  issues.push({
+    type: "iacc.requestBodyUnchanged",
+    sample: captureRoot,
+    detail: `${stats.iaccRequestBodyChanged}/${stats.iaccRequestBodySamples} iacc request body samples changed`
+  });
+}
+if (stats.iaccBodySamples !== stats.iaccBodyChanged) {
+  issues.push({
+    type: "iacc.bodyUnchanged",
+    sample: captureRoot,
+    detail: `${stats.iaccBodyChanged}/${stats.iaccBodySamples} iacc response body samples changed`
+  });
+}
 if (stats.jsonNoopSamples === 0) issues.push({ type: "json.noopNoSamples", sample: captureRoot, detail: "no dispatch/appcfg noop samples matched" });
 if (stats.jsonCleanSamples === 0) issues.push({ type: "json.cleanNoSamples", sample: captureRoot, detail: "no tab/richmedia JSON ad samples matched" });
 if (stats.jsonCleanSamples !== stats.jsonCleanChanged) {
