@@ -1,0 +1,4 @@
+name = "tencent-video-bridge"
+main = "worker.js"
+compatibility_date = "2026-05-26"
+workers_dev = true

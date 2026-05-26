@@ -1,0 +1,38 @@
+#!name= Tencent Video Worker AdBlock
+#!desc= Tencent Video ad cleaner using request-time Cloudflare Worker bridge. Loon does not run http-response body rewrites, reducing local response cache pressure.
+#!author= zijinan
+#!homepage= https://github.com/zijinan/Loon-rule
+#!date= 2026-05-26
+#!risk= medium-high
+
+[Rule]
+DOMAIN,pgdt.gtimg.cn,REJECT
+DOMAIN,xs.gdt.qq.com,REJECT
+DOMAIN,isrpt-vn.gdt.qq.com,REJECT
+DOMAIN,rpt.gdt.qq.com,REJECT
+DOMAIN,extshort.weixin.qq.com,REJECT
+DOMAIN,minorshort.weixin.qq.com,REJECT
+DOMAIN,wzq.tenpay.com,REJECT
+DOMAIN,wzqcf.gtimg.com,REJECT
+DOMAIN,proxy.finance.qq.com,REJECT
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,gdtimg.com,REJECT
+DOMAIN-SUFFIX,l.qq.com,REJECT
+
+[Rewrite]
+^https?:\/\/(?:xs|isrpt-vn|rpt)\.gdt\.qq\.com\/ - reject
+^https?:\/\/pgdt\.gtimg\.cn\/ - reject
+^https?:\/\/(?:extshort|minorshort)\.weixin\.qq\.com\/mmtls\/ - reject
+^https?:\/\/wzq\.tenpay\.com\/ - reject-dict
+^https?:\/\/wzqcf\.gtimg\.com\/ - reject
+^https?:\/\/proxy\.finance\.qq\.com\/ - reject-dict
+^https?:\/\/vfiles\.gtimg\.cn\/wupload\/(?:ad_control_config_test\.ad_copy_pic_url_conf|xy\/promotionTest)\/ - reject
+^https?:\/\/vip\.image\.video\.qpic\.cn\/wupload\/xy\/promotionTest\/ - reject
+^https?:\/\/i\.gtimg\.cn\/qqlive\/images\/20170912\/enter_gray\.png - reject
+^https?:\/\/dldir1\.qq\.com\/qqmi\/video_ad\/ - reject
+
+[Script]
+http-request ^https?:\/\/(?:i\.video\.qq\.com\/?|(?:config\.ab|tab\.video)\.qq\.com\/tab\/(?:GetTabRemoteConfig|GetTabToggle)|rdelivery\.qq\.com\/(?:v1\/sdkconfig\/get|v1\/statistic\/report|v3\/config\/pull)|playproxy\.video\.qq\.com\/monet\/comm_resource\/get|appcfg\.v\.qq\.com\/getconf|iwan\.video\.qq\.com\/trpc\.vgopen\.mini_game_detail\.MiniGameDetail\/GetPreloadGames|(?:vv|vv6)\.video\.qq\.com\/getvinfo) script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideo.bridge.js, tag=TencentVideo-Worker-Bridge, requires-body=true, binary-body-mode=true, timeout=20, enable=true
+
+[MITM]
+hostname = i.video.qq.com, vv.video.qq.com, vv6.video.qq.com, rdelivery.qq.com, appcfg.v.qq.com, tab.video.qq.com, config.ab.qq.com, playproxy.video.qq.com, iwan.video.qq.com
