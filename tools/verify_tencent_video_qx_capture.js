@@ -19,6 +19,11 @@ const iaccRejectFiles = [
   "QuantumultX/rule/Ads-Reject.list"
 ];
 
+const qxProfileFiles = [
+  "QuantumultX/QuanX.conf",
+  "QuantumultX/config/QuanX_Optimized.conf"
+];
+
 const requestUrls = /^https:\/\/(i\.video\.qq\.com\/|disp-qryapi\.3g\.qq\.com\/v1\/dispatch|(?:vv|vv6)\.video\.qq\.com\/getvinfo)/;
 
 const expectedMitmHosts = [
@@ -395,6 +400,26 @@ for (const relativeFile of iaccRejectFiles) {
       type: "config.iaccRejectConflict",
       sample: relativeFile,
       detail: "iacc hosts must be rewritten by TencentVideo-Safe.conf, not rejected"
+    });
+  }
+}
+
+for (const relativeFile of qxProfileFiles) {
+  const file = path.join(repoRoot, relativeFile);
+  if (!fs.existsSync(file)) continue;
+  const text = fs.readFileSync(file, "utf8");
+  const safeLine = text.split(/\r?\n/).find((line) => line.includes("QuantumultX/rewrite/TencentVideo-Safe.conf"));
+  if (!safeLine) {
+    issues.push({
+      type: "config.tencentVideoSafeMissing",
+      sample: relativeFile,
+      detail: "TencentVideo-Safe rewrite resource is not present"
+    });
+  } else if (!/enabled=true\b/.test(safeLine)) {
+    issues.push({
+      type: "config.tencentVideoSafeDisabled",
+      sample: relativeFile,
+      detail: "TencentVideo-Safe rewrite resource must be enabled for the profile to use these scripts"
     });
   }
 }
