@@ -287,7 +287,7 @@ try {
             ["adpass", "xxpass"],
             ["adNetwork", "xxNetwork"],
             ["advertiser", "xvertiserx"],
-            ["adgroup", "xxgroup"],
+            ["adgroup_id", "xxgroup_id"],
             ["adtype", "xxtype"],
             ["ad.vipinfo", "xx.vipinfo"],
             ["_ad_insert_mix_block", "_xx_insert_mix_block"],
