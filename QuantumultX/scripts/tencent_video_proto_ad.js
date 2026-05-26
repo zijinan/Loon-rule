@@ -7,7 +7,7 @@ Observed in capture:
 
 Safety:
 - Only handles small/medium API bodies, never video/image/CDN payloads.
-- If the body clearly looks like an ad-only module response, return an empty body to make the module fail closed.
+- Keep protobuf/body length stable by replacing captured ad identifiers with same-length inert identifiers.
 - Normal i.video.qq.com API responses are passed through unchanged.
 */
 
@@ -215,13 +215,10 @@ try {
         const hasTencentVideoProto = text.includes("qqlive_rsp_head") || text.includes("trpc.ovb_galaxy") || text.includes("trpc.access.video_access_app");
         const hasSplashConfig = url.includes("config.ab.qq.com/tab/GetTabRemoteConfig") && (text.includes("adsplash") || text.includes("splash") || text.includes("launch"));
 
-        if ((hasAdOnlyModule || hasSmallPromotionModule) && (hasAdMaterial || hasTencentVideoProto)) {
-          // This response is an embedded Tencent ad module, not a video segment.
-          // Emptying it is safer than trying to rewrite protobuf length fields.
-          output = "";
-        } else if (hasSplashConfig || hasAdMaterial || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
+        if (hasSplashConfig || hasAdMaterial || hasAdOnlyModule || hasSmallPromotionModule || text.includes("advertiser=") || text.includes("creative_finger_print=")) {
           const swaps = [
             ["adsplash_online_network", "xxsplxsh_offlin_network"],
+            ["ADSplash", "XXSplxsh"],
             ["adsplash", "xxsplxsh"],
             ["splash", "xplash"],
             ["launch", "xaunch"],
@@ -234,9 +231,16 @@ try {
             ["review.gdtimg.com", "revxxx.gdtimg.com"],
             ["iacc.qq.com", "iaxx.qq.com"],
             ["iacc.rec.qq.com", "iaxx.rec.qq.com"],
-            ["vfiles.gtimg.cn", "vfiles.gtimg.zz"],
-            ["vip.image.video.qpic.cn", "vip.image.video.qpic.zz"],
-            ["i.gtimg.cn", "i.gtimg.zz"],
+            ["vfiles.gtimg.cn/wupload/ad_control_config_test.ad_copy_pic_url_conf", "vfiles.gtimg.zz/wupload/ad_control_config_test.ad_copy_pic_url_conf"],
+            ["vfiles.gtimg.cn/wupload/xy/promotiontest", "vfiles.gtimg.zz/wupload/xy/promotiontest"],
+            ["vfiles.gtimg.cn/wupload/xy/promotionTest", "vfiles.gtimg.zz/wupload/xy/promotionTest"],
+            ["vfiles.gtimg.cn/wupload/xy/starter", "vfiles.gtimg.zz/wupload/xy/starter"],
+            ["vfiles.gtimg.cn/wupload/xy/universal", "vfiles.gtimg.zz/wupload/xy/universal"],
+            ["vip.image.video.qpic.cn/wupload/xy/promotiontest", "vip.image.video.qpic.zz/wupload/xy/promotiontest"],
+            ["vip.image.video.qpic.cn/wupload/xy/promotionTest", "vip.image.video.qpic.zz/wupload/xy/promotionTest"],
+            ["vip.image.video.qpic.cn/vupload/20221226", "vip.image.video.qpic.zz/vupload/20221226"],
+            ["i.gtimg.cn/qqlive/images/20180111", "i.gtimg.zz/qqlive/images/20180111"],
+            ["ad_control_config_test", "xx_control_config_test"],
             ["tytx.m.cn.miaozhen.com", "tytx.m.cn.miaozhen.bad"],
             ["m.v.qq.com/activity/qqvideo/interact/vod.html", "m.v.qq.com/activity/qqvideo/interact/vod.htm0"],
             ["m.x.qq.com/activity/qqvideo/interact/vod.html", "m.x.qq.com/activity/qqvideo/interact/vod.htm0"],
@@ -248,8 +252,18 @@ try {
             ["\"opsrc\":1", "\"opsrc\":0"],
             ["\"vet\":1840723200,\"datatype\":5", "\"vet\":1000000000,\"datatype\":0"],
             ["\"datatype\":5", "\"datatype\":0"],
-            ["starter", "stxrter"],
-            ["universal", "unxversal"],
+            ["mod_trailer_ad", "mod_trailer_xx"],
+            ["mod_recommend_ad", "mod_recommend_xx"],
+            ["AdRequestContextInfo", "XxRequestContextInfo"],
+            ["adRequestParam", "xxRequestParam"],
+            ["adService", "xxService"],
+            ["adVipState", "xxVipState"],
+            ["getAdDetailJ", "getXxDetailJ"],
+            ["GetPersonalCenterAdDataJ", "GetPersonalCenterXxDataJ"],
+            ["GetFollowHeartRewardAdInfoJ", "GetFollowHeartRewardXxInfoJ"],
+            ["video_ad/mini_game_feeds", "video_xx/mini_game_feeds"],
+            ["ad.viploading", "xx.viploading"],
+            ["ad.userinfo.vip", "xx.userinfo.vip"],
             ["AdFeedImagePoster", "XxFeedImagePoster"],
             ["AdFocusPoster", "XxFocusPoster"],
             ["AdFeedVideoPoster", "XxFeedVideoPoster"],
@@ -258,7 +272,13 @@ try {
             ["adfeedvideoposter", "xxfeedvideoposter"],
             ["advertiser=", "xvertiserx="],
             ["creative_finger_print=", "creative_xinger_xrint="],
+            ["reward_ad_ssp_service", "reward_xx_ssp_service"],
+            ["reward_ad_ssp", "reward_xx_ssp"],
             ["video_ad_ssp_feeds", "video_xx_ssp_feeds"],
+            ["video_ad_ssp", "video_xx_ssp"],
+            ["vip_ad_promotion", "vip_xx_promotion"],
+            ["view_ad_ssp", "view_xx_ssp"],
+            ["ServerAdFeedsVideo", "ServerXxFeedsVideo"],
             ["serveradfeedsvideo", "serverxxfeedsvideo"]
           ];
 
