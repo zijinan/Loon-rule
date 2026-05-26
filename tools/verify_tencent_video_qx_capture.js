@@ -276,6 +276,30 @@ const directMaterialPatterns = [
   { name: "p2.l.qq.com", regex: /^https?:\/\/p2\.l\.qq\.com\// }
 ];
 
+const provenanceLookback = 12;
+const provenanceUpstreamUrls = /^https?:\/\/(?:i\.video\.qq\.com\/|iacc(?:\.rec)?\.qq\.com\/|(?:vv|vv6)\.video\.qq\.com\/getvinfo)/;
+const provenanceMarkers = [
+  "qad_device_platform",
+  "advertiser_name_hashed_value",
+  "xvertiserx_name_hashed_value",
+  "creative_finger_print",
+  "creative_xinger_xrint",
+  "PRE-DOWNLOAD",
+  "CARD-PRERANK",
+  "CARD-RANK",
+  "view_ad",
+  "kNoSubAdType",
+  "adpass=",
+  "adversion=",
+  "adchid=",
+  "pgdt.gtimg.cn",
+  "v3.gdt.qq.com",
+  "c3.gdt.qq.com",
+  "p2.l.qq.com",
+  "gdt_click.fcg",
+  "gdt_stats.fcg"
+];
+
 function walk(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -534,6 +558,87 @@ function addIssue(issues, type, entryDir, detail) {
   });
 }
 
+function entryOrdinal(entryDir) {
+  const match = path.basename(entryDir).match(/^\d+/);
+  return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER;
+}
+
+function entryLabel(entryDir) {
+  return `${path.basename(path.dirname(entryDir))}/${path.basename(entryDir)}`;
+}
+
+function entriesByCaptureName() {
+  const byCapture = new Map(captureDirs.map((dir) => [path.basename(dir), []]));
+  for (const entryDir of entryDirs) {
+    const captureName = captureNameForEntry(entryDir);
+    if (!byCapture.has(captureName)) byCapture.set(captureName, []);
+    byCapture.get(captureName).push(entryDir);
+  }
+
+  for (const dirs of byCapture.values()) {
+    dirs.sort((left, right) => {
+      const diff = entryOrdinal(left) - entryOrdinal(right);
+      return diff || left.localeCompare(right);
+    });
+  }
+
+  return byCapture;
+}
+
+function runProvenanceRequest(url, source) {
+  if (/^https?:\/\/iacc(?:\.rec)?\.qq\.com\//.test(url)) {
+    return runIaccRequestBody(url, source);
+  }
+  return runRequest(url, source);
+}
+
+function runProvenanceResponse(url, source, headers) {
+  if (/^https?:\/\/iacc(?:\.rec)?\.qq\.com\//.test(url)) {
+    return runIaccResponse(url, source, headers);
+  }
+  if (/^https:\/\/i\.video\.qq\.com\//.test(url) || url.includes("config.ab.qq.com/tab/GetTabRemoteConfig")) {
+    return runResponse(url, source, headers);
+  }
+  return undefined;
+}
+
+function checkProvenanceBody(materialEntryDir, upstreamEntryDir, kind, url, before, headers, seen) {
+  if (!before || before.length > 1024 * 1024 || !includesAny(before, provenanceMarkers)) return;
+
+  const key = `${upstreamEntryDir}\u0000${kind}`;
+  if (seen.has(key)) return;
+  seen.add(key);
+
+  const after = kind === "request"
+    ? runProvenanceRequest(url, before)
+    : runProvenanceResponse(url, before, headers);
+
+  if (after === undefined) return;
+
+  stats.directMaterialUpstreamSamples += 1;
+  if (after !== before) stats.directMaterialUpstreamChanged += 1;
+  if (after.length !== before.length) {
+    addIssue(
+      issues,
+      `directMaterial.upstream${kind === "request" ? "Request" : "Response"}LengthChanged`,
+      materialEntryDir,
+      `${entryLabel(materialEntryDir)} <- ${entryLabel(upstreamEntryDir)} ${url}`
+    );
+  }
+
+  const rem = remaining(after, provenanceMarkers);
+  if (rem.length) {
+    addIssue(
+      issues,
+      `directMaterial.upstream${kind === "request" ? "Request" : "Response"}MarkerRemaining`,
+      materialEntryDir,
+      `${entryLabel(materialEntryDir)} <- ${entryLabel(upstreamEntryDir)}: ${rem.join(", ")}`
+    );
+  } else {
+    stats.directMaterialUpstreamClean += 1;
+  }
+}
+
 function checkKeepNeedles(entryDir, before, after) {
   for (const needle of keepNeedles) {
     if (!before.includes(needle)) continue;
@@ -609,6 +714,10 @@ const stats = {
     }
   ])),
   directMaterialExamples: {},
+  directMaterialProvenanceWindows: 0,
+  directMaterialUpstreamSamples: 0,
+  directMaterialUpstreamChanged: 0,
+  directMaterialUpstreamClean: 0,
   paginationSoftSamples: 0,
   paginationSoftUnchanged: 0,
   paginationHardSamples: 0,
@@ -848,6 +957,47 @@ for (const entryDir of entryDirs) {
   }
 
   checkKeepNeedles(entryDir, respBody, out);
+}
+
+for (const dirs of entriesByCaptureName().values()) {
+  const provenanceSeen = new Set();
+
+  for (let index = 0; index < dirs.length; index += 1) {
+    const entryDir = dirs[index];
+    const url = requestUrl(entryDir);
+    if (!directMaterialPatterns.some((item) => item.regex.test(url))) continue;
+
+    stats.directMaterialProvenanceWindows += 1;
+
+    const start = Math.max(0, index - provenanceLookback);
+    for (let prevIndex = index - 1; prevIndex >= start; prevIndex -= 1) {
+      const upstreamEntryDir = dirs[prevIndex];
+      const upstreamUrl = requestUrl(upstreamEntryDir);
+      if (!provenanceUpstreamUrls.test(upstreamUrl)) continue;
+
+      const upstreamRequestBody = body(upstreamEntryDir, "request");
+      checkProvenanceBody(
+        entryDir,
+        upstreamEntryDir,
+        "request",
+        upstreamUrl,
+        upstreamRequestBody,
+        requestHeaders(upstreamEntryDir),
+        provenanceSeen
+      );
+
+      const upstreamResponseBody = body(upstreamEntryDir, "response");
+      checkProvenanceBody(
+        entryDir,
+        upstreamEntryDir,
+        "response",
+        upstreamUrl,
+        upstreamResponseBody,
+        responseHeaders(upstreamEntryDir),
+        provenanceSeen
+      );
+    }
+  }
 }
 
 if (stats.captureDirs === 0) issues.push({ type: "captures.missing", sample: captureRoot, detail: "no capture_* directories found" });

@@ -223,6 +223,10 @@ try {
 
         const materialMarkers = [
           "pgdt.gtimg.cn",
+          "p2.l.qq.com",
+          "dldir1.qq.com/qqmi/video_ad",
+          "v3.gdt.qq.com",
+          "c3.gdt.qq.com",
           "v3.gdt.qq.com/gdt_stats.fcg",
           "review.gdtimg.com/qzone/biz/gdt",
           "nc.gdt.qq.com/gdt_report.fcg",
@@ -301,6 +305,7 @@ try {
             ["splash", "xplash"],
             ["launch", "xaunch"],
             ["pgdt.gtimg.cn", "pgdt.gtimg.zz"],
+            ["p2.l.qq.com", "px.l.qq.com"],
             ["v3.gdt.qq.com", "xx.gdt.qq.com"],
             ["vr.gdt.qq.com", "xx.gdt.qq.com"],
             ["xs.gdt.qq.com", "xx.gdt.qq.com"],
