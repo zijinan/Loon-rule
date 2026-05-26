@@ -1,0 +1,89 @@
+# Direct-Domestic.list
+# 国内/Apple/微信/腾讯/阿里/京东/Bilibili/常用 CDN 直连补充
+# 适用于 Quantumult X filter_remote / filter_local
+
+# Local / LAN
+HOST-SUFFIX,local,DIRECT
+HOST-SUFFIX,lan,DIRECT
+HOST-SUFFIX,home.arpa,DIRECT
+IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
+IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+IP-CIDR,198.18.0.0/15,DIRECT,no-resolve
+IP6-CIDR,fc00::/7,DIRECT,no-resolve
+
+# China base
+HOST-SUFFIX,cn,DIRECT
+GEOIP,CN,DIRECT
+
+# Connectivity / captive portal
+HOST,connectivitycheck.platform.hicloud.com,DIRECT
+HOST,captive.apple.com,DIRECT
+HOST,guzzoni.apple.com,DIRECT
+HOST,msftconnecttest.com,DIRECT
+HOST,msftncsi.com,DIRECT
+
+# Apple / iCloud - default DIRECT for China CDN stability
+HOST-SUFFIX,apple.com,DIRECT
+HOST-SUFFIX,apple.com.cn,DIRECT
+HOST-SUFFIX,icloud.com,DIRECT
+HOST-SUFFIX,mzstatic.com,DIRECT
+HOST-SUFFIX,aaplimg.com,DIRECT
+HOST-SUFFIX,cdn-apple.com,DIRECT
+
+# WeChat / Tencent / QQ / payment / CDN
+HOST-SUFFIX,weixin.qq.com,DIRECT
+HOST-SUFFIX,wechat.com,DIRECT
+HOST-SUFFIX,wechatapp.com,DIRECT
+HOST-SUFFIX,servicewechat.com,DIRECT
+HOST-SUFFIX,tenpay.com,DIRECT
+HOST-SUFFIX,qq.com,DIRECT
+HOST-SUFFIX,tencent.com,DIRECT
+HOST-SUFFIX,tencent-cloud.com,DIRECT
+HOST-SUFFIX,tencent-cloud.net,DIRECT
+HOST-SUFFIX,gtimg.com,DIRECT
+HOST-SUFFIX,gtimg.cn,DIRECT
+HOST-SUFFIX,qpic.cn,DIRECT
+HOST-SUFFIX,qlogo.cn,DIRECT
+HOST-SUFFIX,qcloud.com,DIRECT
+HOST-SUFFIX,myqcloud.com,DIRECT
+HOST-KEYWORD,weixin,DIRECT
+HOST-KEYWORD,wechat,DIRECT
+
+# Tencent anti-cheat / game related
+HOST-SUFFIX,anticheatexpert.com,DIRECT
+HOST-SUFFIX,iegcom.com,DIRECT
+HOST-SUFFIX,game.qq.com,DIRECT
+
+# Alibaba / payment / shopping
+HOST-SUFFIX,alicdn.com,DIRECT
+HOST-SUFFIX,aliyuncs.com,DIRECT
+HOST-SUFFIX,alipay.com,DIRECT
+HOST-SUFFIX,alipayobjects.com,DIRECT
+HOST-SUFFIX,taobao.com,DIRECT
+HOST-SUFFIX,tmall.com,DIRECT
+HOST-SUFFIX,jd.com,DIRECT
+HOST-SUFFIX,jd.hk,DIRECT
+HOST-SUFFIX,360buyimg.com,DIRECT
+HOST-SUFFIX,amap.com,DIRECT
+HOST-SUFFIX,autonavi.com,DIRECT
+
+# Bilibili
+HOST-SUFFIX,bilibili.com,DIRECT
+HOST-SUFFIX,bilivideo.com,DIRECT
+HOST-SUFFIX,hdslb.com,DIRECT
+
+# China video / content / app embedded pages
+HOST-SUFFIX,lepudding.com,DIRECT
+
+# Microsoft default direct to avoid login/payment/store issues
+HOST-SUFFIX,microsoft.com,DIRECT
+HOST-SUFFIX,windows.com,DIRECT
+HOST-SUFFIX,office.com,DIRECT
+HOST-SUFFIX,office365.com,DIRECT
+HOST-SUFFIX,live.com,DIRECT
+HOST-SUFFIX,sharepoint.com,DIRECT
+HOST-SUFFIX,onedrive.com,DIRECT
