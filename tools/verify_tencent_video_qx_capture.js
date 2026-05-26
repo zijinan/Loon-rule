@@ -93,11 +93,20 @@ const requestMarkers = [
   "ad_pos",
   "vip_ad_promotion",
   "advertiser=",
+  "advertiser_name_hashed_value",
   "creative_finger_print=",
   "creative_xinger_xrint",
+  "qad_device_platform",
   "adpass=",
   "adversion=",
-  "adchid="
+  "adchid=",
+  "TADChid/0",
+  "kNoSubAdType",
+  "last_contract_ad_timestamp",
+  "cache_ad",
+  "ad.page.detail.vipbtn",
+  "FILTER-ADD",
+  "RERANK-ADD"
 ];
 
 const responseMarkers = [
@@ -156,6 +165,11 @@ const responseMarkers = [
   "parallel_ad_abs_pos",
   "adload",
   "GsADCoIB",
+  "xvertiserx_name_hashed_value",
+  "creative_xinger_xrint",
+  "PRE-DOWNLOAD",
+  "CARD-PRERANK",
+  "CARD-RANK",
   "gdt.qq.com/gdt_click",
   "gdt.qq.com/gdt_report",
   "gdt.qq.com/gdt_stats",

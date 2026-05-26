@@ -242,6 +242,11 @@ try {
           "adfeedimageposter",
           "adfocusposter",
           "adfeedvideoposter",
+          "creative_xinger_xrint",
+          "xvertiserx_name_hashed_value",
+          "pre-download",
+          "card-prerank",
+          "card-rank",
           "adopenwxprogramaction",
           "addownloadaction",
           "openadcanvas",
@@ -282,7 +287,7 @@ try {
           text.includes("video_un_page_index") ||
           text.includes("_ctrl_page_index")
         );
-        const hasHardAdSignal = hasTencentAdConfig || hasAdMaterial || hasAdOnlyModule || text.includes("advertiser=") || text.includes("creative_finger_print=");
+        const hasHardAdSignal = hasTencentAdConfig || hasAdMaterial || hasAdOnlyModule || text.includes("advertiser=") || text.includes("creative_finger_print=") || text.includes("creative_xinger_xrint") || text.includes("xvertiserx_name_hashed_value");
         const hasPageAction = pageActionMarkers.some((x) => text.includes(x));
 
         if (hasHardAdSignal || (hasSoftPromotionModule && !hasPageState)) {
@@ -451,8 +456,12 @@ try {
             ["adfocusposter", "xxfocusposter"],
             ["adfeedvideoposter", "xxfeedvideoposter"],
             ["advertiser=", "xvertiserx="],
+            ["xvertiserx_name_hashed_value", "xvertiserx_name_hxshed_vxlue"],
             ["creative_finger_print=", "xreative_xinger_xrint="],
             ["creative_xinger_xrint", "xreative_xinger_xrint"],
+            ["PRE-DOWNLOAD", "XXX-DOWNLOAD"],
+            ["CARD-PRERANK", "CARD-PREXXXX"],
+            ["CARD-RANK", "CARD-XXXX"],
             ["reward_ad_ssp_service", "reward_xx_ssp_service"],
             ["reward_ad_ssp", "reward_xx_ssp"],
             ["video_ad_ssp_feeds", "video_xx_ssp_feeds"],
