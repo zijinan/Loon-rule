@@ -70,6 +70,8 @@ const EXACT_EMPTY_KEYS = new Set([
   "pausead"
 ]);
 
+const AD_KEY_RE = /(^|_)(ad|ads|advert|advertise|advertisement|splash|launch|gdt|pgdt|promotion|monet)(_|$)/;
+
 const AD_NEEDLES = [
   "pgdt.gtimg.cn",
   "v3.gdt.qq.com",
@@ -78,6 +80,11 @@ const AD_NEEDLES = [
   "gdt.qq.com",
   "e.qq.com",
   "sdkreport.e.qq.com",
+  "iacc.qq.com",
+  "iacc.rec.qq.com",
+  "rdelivery.qq.com/v1/statistic/report",
+  "vip.image.video.qpic.cn/wupload/xy/promotiontest",
+  "vfiles.gtimg.cn/wupload/xy/promotiontest",
   "splash_ad",
   "launch_ad",
   "pre_ad",
@@ -136,9 +143,21 @@ function clean(value) {
     const normalized = key.toLowerCase().replace(/[-\s]/g, "_");
     const compact = normalized.replace(/_/g, "");
 
-    if (EXACT_EMPTY_KEYS.has(normalized) || EXACT_EMPTY_KEYS.has(compact)) {
+    if (EXACT_EMPTY_KEYS.has(normalized) || EXACT_EMPTY_KEYS.has(compact) || AD_KEY_RE.test(normalized)) {
       value[key] = emptyValue(value[key]);
       continue;
+    }
+
+    if (typeof value[key] === "string") {
+      const trimmed = value[key].trim();
+      if ((trimmed.startsWith("{") || trimmed.startsWith("[")) && AD_NEEDLES.some((needle) => trimmed.toLowerCase().includes(needle))) {
+        try {
+          const nested = JSON.parse(trimmed);
+          clean(nested);
+          value[key] = JSON.stringify(nested);
+          continue;
+        } catch (_) {}
+      }
     }
 
     if (isAdObject(value[key])) {

@@ -11,7 +11,7 @@ Safety:
 - Normal i.video.qq.com API responses are passed through unchanged.
 */
 
-const MAX_BODY_SIZE = 300 * 1024;
+const MAX_BODY_SIZE = 1024 * 1024;
 const body = ($response && $response.body) || "";
 const headers = ($response && $response.headers) || {};
 
@@ -23,40 +23,61 @@ function header(name) {
   return "";
 }
 
-function done(payload) {
-  if (payload === undefined) return $done({});
-  return $done({ body: payload });
-}
+let output;
 
 try {
-  if (!body || body.length > MAX_BODY_SIZE) done();
+  if (body && body.length <= MAX_BODY_SIZE) {
+    const ct = header("Content-Type").toLowerCase();
+    const isMedia = ct.includes("image/") || ct.includes("video/") || ct.includes("mpegurl");
 
-  const ct = header("Content-Type").toLowerCase();
-  if (ct.includes("image/") || ct.includes("video/") || ct.includes("mpegurl")) done();
+    if (!isMedia) {
+      const text = String(body).toLowerCase();
 
-  const text = String(body).toLowerCase();
+      const adOnlyMarkers = [
+        "mod_trailer_ad",
+        "ad_control_config_test",
+        "video_ad/mini_game_feeds",
+        "getaddetailj",
+        "getpersonalcenteraddataj",
+        "ad.viploading"
+      ];
 
-  const strongAdMarkers = [
-    "mod_trailer_ad",
-    "adfeedimageposter",
-    "ad_control_config_test",
-    "video_ad/mini_game_feeds",
-    "pgdt.gtimg.cn",
-    "v3.gdt.qq.com/gdt_stats.fcg",
-    "review.gdtimg.com/qzone/biz/gdt",
-    "nc.gdt.qq.com/gdt_report.fcg"
-  ];
+      const smallPromotionMarkers = [
+        "video_ad_ssp_feeds",
+        "serveradfeedsvideo",
+        "ad.userinfo.vip",
+        "vip_ad_promotion",
+        "vip.image.video.qpic.cn/wupload/xy/promotiontest",
+        "vfiles.gtimg.cn/wupload/xy/promotiontest"
+      ];
 
-  const hasStrongAd = strongAdMarkers.some((x) => text.includes(x));
-  const hasTencentVideoProto = text.includes("qqlive_rsp_head") || text.includes("trpc.ovb_galaxy") || text.includes("trpc.access.video_access_app");
+      const materialMarkers = [
+        "pgdt.gtimg.cn",
+        "v3.gdt.qq.com/gdt_stats.fcg",
+        "review.gdtimg.com/qzone/biz/gdt",
+        "nc.gdt.qq.com/gdt_report.fcg",
+        "adfeedimageposter",
+        "adfocusposter",
+        "adfeedvideoposter"
+      ];
 
-  if (hasStrongAd && hasTencentVideoProto) {
-    // This response is an embedded Tencent ad module, not a video segment.
-    // Emptying it is safer than trying to rewrite protobuf length fields.
-    done("");
+      const hasAdOnlyModule = body.length <= 64 * 1024 && adOnlyMarkers.some((x) => text.includes(x));
+      const hasSmallPromotionModule = body.length <= 64 * 1024 && smallPromotionMarkers.some((x) => text.includes(x));
+      const hasAdMaterial = materialMarkers.some((x) => text.includes(x));
+      const hasTencentVideoProto = text.includes("qqlive_rsp_head") || text.includes("trpc.ovb_galaxy") || text.includes("trpc.access.video_access_app");
+
+      if ((hasAdOnlyModule || hasSmallPromotionModule) && (hasAdMaterial || hasTencentVideoProto)) {
+        // This response is an embedded Tencent ad module, not a video segment.
+        // Emptying it is safer than trying to rewrite protobuf length fields.
+        output = "";
+      }
+    }
   }
-
-  done();
 } catch (_) {
-  done();
+}
+
+if (output === undefined) {
+  $done({});
+} else {
+  $done({ body: output });
 }
