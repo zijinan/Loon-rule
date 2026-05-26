@@ -94,6 +94,7 @@ const requestMarkers = [
   "vip_ad_promotion",
   "advertiser=",
   "advertiser_name_hashed_value",
+  "xvertiserx_name_hashed_value",
   "creative_finger_print=",
   "creative_xinger_xrint",
   "qad_device_platform",

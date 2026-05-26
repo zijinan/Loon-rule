@@ -72,6 +72,7 @@ try {
       ["iacc.rec.qq.com", "iaxx.rec.qq.com"],
       ["advertiser=", "xvertiserx="],
       ["advertiser_name_hashed_value", "xvertiserx_name_hashed_value"],
+      ["xvertiserx_name_hashed_value", "xvertiserx_name_hxshed_vxlue"],
       ["creative_finger_print=", "xreative_xinger_xrint="],
       ["creative_xinger_xrint", "xreative_xinger_xrint"],
       ["qad_device_platform=5", "qad_device_platform=0"],
