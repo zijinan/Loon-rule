@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const zlib = require("zlib");
 
 const repoRoot = path.resolve(__dirname, "..");
 const captureRoot = path.resolve(process.argv[2] || path.join(repoRoot, ".."));
@@ -93,7 +94,10 @@ const requestMarkers = [
   "vip_ad_promotion",
   "advertiser=",
   "creative_finger_print=",
-  "creative_xinger_xrint"
+  "creative_xinger_xrint",
+  "adpass=",
+  "adversion=",
+  "adchid="
 ];
 
 const responseMarkers = [
@@ -249,6 +253,14 @@ const jsonCleanMarkers = [
   "type_ad_frame_time"
 ];
 
+const directMaterialPatterns = [
+  { name: "pgdt.gtimg.cn", regex: /^https?:\/\/pgdt\.gtimg\.cn\// },
+  { name: "dldir1.qq.com/qqmi/video_ad", regex: /^https?:\/\/dldir1\.qq\.com\/qqmi\/video_ad\// },
+  { name: "v3.gdt.qq.com", regex: /^https?:\/\/v3\.gdt\.qq\.com\// },
+  { name: "c3.gdt.qq.com", regex: /^https?:\/\/c3\.gdt\.qq\.com\// },
+  { name: "p2.l.qq.com", regex: /^https?:\/\/p2\.l\.qq\.com\// }
+];
+
 function walk(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -274,6 +286,44 @@ function readTextIfExists(file) {
 
 function readLatin1IfExists(file) {
   return fs.existsSync(file) ? fs.readFileSync(file).toString("latin1") : "";
+}
+
+function stripChunked(buffer) {
+  let index = 0;
+  const chunks = [];
+
+  while (index < buffer.length) {
+    const end = buffer.indexOf("\r\n", index, "latin1");
+    if (end < 0) return buffer;
+    const line = buffer.subarray(index, end).toString("ascii").split(";", 1)[0].trim();
+    if (!/^[0-9a-f]+$/i.test(line)) return buffer;
+    const size = Number.parseInt(line, 16);
+    index = end + 2;
+    if (!Number.isFinite(size) || index + size > buffer.length) return buffer;
+    if (size === 0) return Buffer.concat(chunks);
+    chunks.push(buffer.subarray(index, index + size));
+    index += size;
+    if (buffer[index] !== 13 || buffer[index + 1] !== 10) return buffer;
+    index += 2;
+  }
+
+  return buffer;
+}
+
+function decodeCapturedBuffer(buffer, headers) {
+  if (!buffer || !buffer.length) return buffer;
+  const transfer = String(headers["transfer-encoding"] || "").toLowerCase();
+  const encoding = String(headers["content-encoding"] || "").toLowerCase();
+  let decoded = transfer.includes("chunked") ? stripChunked(buffer) : stripChunked(buffer);
+
+  if (encoding.includes("gzip") || (decoded[0] === 0x1f && decoded[1] === 0x8b)) {
+    try {
+      decoded = zlib.gunzipSync(decoded);
+    } catch (_) {
+    }
+  }
+
+  return decoded;
 }
 
 const wrapperCache = new Map();
@@ -347,21 +397,24 @@ function requestHeaders(entryDir) {
 
 function body(entryDir, kind) {
   if (kind === "request") {
+    const headers = requestHeaders(entryDir);
     const file = path.join(entryDir, "request_body");
-    if (fs.existsSync(file)) return fs.readFileSync(file).toString("latin1");
+    if (fs.existsSync(file)) return decodeCapturedBuffer(fs.readFileSync(file), headers).toString("latin1");
 
     const wrapper = requestWrapper(entryDir);
     if (wrapper && typeof wrapper.bodyBase64 === "string") {
-      return Buffer.from(wrapper.bodyBase64, "base64").toString("latin1");
+      return decodeCapturedBuffer(Buffer.from(wrapper.bodyBase64, "base64"), headers).toString("latin1");
     }
 
-    return readLatin1IfExists(path.join(entryDir, "request_body_raw"));
+    const rawFile = path.join(entryDir, "request_body_raw");
+    return fs.existsSync(rawFile) ? decodeCapturedBuffer(fs.readFileSync(rawFile), headers).toString("latin1") : "";
   }
 
+  const headers = responseHeaders(entryDir);
   const names = ["response_body", "response_body_raw"];
   for (const name of names) {
     const file = path.join(entryDir, name);
-    if (fs.existsSync(file)) return fs.readFileSync(file).toString("latin1");
+    if (fs.existsSync(file)) return decodeCapturedBuffer(fs.readFileSync(file), headers).toString("latin1");
   }
   return "";
 }
@@ -518,6 +571,9 @@ const stats = {
   iaccRequestBodyChanged: 0,
   iaccBodySamples: 0,
   iaccBodyChanged: 0,
+  directMaterialRequests: 0,
+  directMaterialByHost: Object.fromEntries(directMaterialPatterns.map((item) => [item.name, 0])),
+  directMaterialExamples: {},
   paginationSoftSamples: 0,
   paginationSoftUnchanged: 0,
   paginationHardSamples: 0,
@@ -637,6 +693,15 @@ for (const entryDir of entryDirs) {
   const reqHeaders = requestHeaders(entryDir);
   const headers = responseHeaders(entryDir);
   if (requestWrapper(entryDir)) stats.wrappedRequestEntries += 1;
+
+  for (const item of directMaterialPatterns) {
+    if (!item.regex.test(url)) continue;
+    stats.directMaterialRequests += 1;
+    stats.directMaterialByHost[item.name] += 1;
+    if (!stats.directMaterialExamples[item.name]) {
+      stats.directMaterialExamples[item.name] = `${path.basename(path.dirname(entryDir))}/${path.basename(entryDir)}`;
+    }
+  }
 
   if (coreHeaderUrls.test(url)) {
     const cookie = reqHeaders.cookie || "";
