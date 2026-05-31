@@ -1,0 +1,15 @@
+#!name=Speedtest 策略选择
+#!desc=将 Speedtest / Fast / Cloudflare Speed 等测速流量分流到指定策略；安装插件时可填写策略名，例如：DIRECT、PROXY、节点选择、自动选择、香港节点、美国节点。
+#!author=zijinan + blackmatrix7
+#!homepage=https://github.com/zijinan/Loon-rule
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png
+#!date=2026-05-31
+#!arguments=POLICY:PROXY
+
+[Rule]
+DOMAIN-SUFFIX,fast.com,{{{POLICY}}}
+DOMAIN-SUFFIX,ooklaserver.net,{{{POLICY}}}
+DOMAIN-SUFFIX,speed.cloudflare.com,{{{POLICY}}}
+DOMAIN-SUFFIX,speed.dler.io,{{{POLICY}}}
+DOMAIN-KEYWORD,speedtest,{{{POLICY}}}
+USER-AGENT,SpeedTest*,{{{POLICY}}}
