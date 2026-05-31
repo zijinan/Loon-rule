@@ -7,9 +7,20 @@
 #!arguments=POLICY:PROXY
 
 [Rule]
+# Fast.com / Netflix speed test
 DOMAIN-SUFFIX,fast.com,{{{POLICY}}}
+
+# Ookla Speedtest official site / app / CDN / custom tests
+DOMAIN-SUFFIX,speedtest.net,{{{POLICY}}}
+DOMAIN-SUFFIX,ookla.com,{{{POLICY}}}
 DOMAIN-SUFFIX,ooklaserver.net,{{{POLICY}}}
-DOMAIN-SUFFIX,speed.cloudflare.com,{{{POLICY}}}
-DOMAIN-SUFFIX,speed.dler.io,{{{POLICY}}}
+DOMAIN-SUFFIX,speedtestcustom.com,{{{POLICY}}}
+DOMAIN-SUFFIX,speedtestcdn.com,{{{POLICY}}}
 DOMAIN-KEYWORD,speedtest,{{{POLICY}}}
 USER-AGENT,SpeedTest*,{{{POLICY}}}
+
+# Other common speed test services
+DOMAIN-SUFFIX,speed.cloudflare.com,{{{POLICY}}}
+DOMAIN-SUFFIX,speed.dler.io,{{{POLICY}}}
+DOMAIN-SUFFIX,librespeed.org,{{{POLICY}}}
+DOMAIN-SUFFIX,test-ipv6.com,{{{POLICY}}}
