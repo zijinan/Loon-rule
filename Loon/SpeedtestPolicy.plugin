@@ -1,5 +1,5 @@
-#!name=Speedtest PROXY
-#!desc=将 iOS Speedtest App / Fast / Cloudflare Speed 等测速流量直接分流到 PROXY。
+#!name=Speedtest DIRECT
+#!desc=将 iOS Speedtest App / Fast / Cloudflare Speed 等测速流量直接分流到 DIRECT，避免策略组名称不存在导致断网。
 #!author=zijinan + blackmatrix7
 #!homepage=https://github.com/zijinan/Loon-rule
 #!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png
@@ -7,19 +7,19 @@
 
 [Rule]
 # Fast.com / Netflix speed test
-DOMAIN-SUFFIX,fast.com,PROXY
+DOMAIN-SUFFIX,fast.com,DIRECT
 
 # Ookla Speedtest official site / iOS app / CDN / custom tests
-DOMAIN-SUFFIX,speedtest.net,PROXY
-DOMAIN-SUFFIX,ookla.com,PROXY
-DOMAIN-SUFFIX,ooklaserver.net,PROXY
-DOMAIN-SUFFIX,speedtestcustom.com,PROXY
-DOMAIN-SUFFIX,speedtestcdn.com,PROXY
-DOMAIN-KEYWORD,speedtest,PROXY
-USER-AGENT,SpeedTest*,PROXY
+DOMAIN-SUFFIX,speedtest.net,DIRECT
+DOMAIN-SUFFIX,ookla.com,DIRECT
+DOMAIN-SUFFIX,ooklaserver.net,DIRECT
+DOMAIN-SUFFIX,speedtestcustom.com,DIRECT
+DOMAIN-SUFFIX,speedtestcdn.com,DIRECT
+DOMAIN-KEYWORD,speedtest,DIRECT
+USER-AGENT,SpeedTest*,DIRECT
 
 # Other common speed test services
-DOMAIN-SUFFIX,speed.cloudflare.com,PROXY
-DOMAIN-SUFFIX,speed.dler.io,PROXY
-DOMAIN-SUFFIX,librespeed.org,PROXY
-DOMAIN-SUFFIX,test-ipv6.com,PROXY
+DOMAIN-SUFFIX,speed.cloudflare.com,DIRECT
+DOMAIN-SUFFIX,speed.dler.io,DIRECT
+DOMAIN-SUFFIX,librespeed.org,DIRECT
+DOMAIN-SUFFIX,test-ipv6.com,DIRECT
