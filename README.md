@@ -2,6 +2,52 @@
 
 个人 Loon 分流与插件规则仓库。
 
+![Validate public rules](https://github.com/zijinan/Loon-rule/actions/workflows/validate-public-rules.yml/badge.svg)
+
+本仓库维护可公开分享的 Loon、QuantumultX 和 Shadowrocket 配置、分流规则、插件与安全说明。核心目标是把可复用规则公开出来，同时把真实节点、订阅、证书、token 和私有域名保留在本地。
+
+## 项目范围
+
+- Loon 公开安全配置模板和本地私有配置占位示例。
+- QuantumultX 分流、Rewrite 和脚本配置。
+- Shadowrocket 公开安全配置模板。
+- 面向 DNS 泄漏、国内 App 直连、视频/音乐插件和广告/统计拦截的维护说明。
+- 公开配置安全检查、Issue 模板、PR 模板和发布记录。
+
+## 维护状态
+
+- 主要维护者：`@zijinan`
+- 当前维护重点：公开配置安全、DNS 泄漏防护、国内常用 App 兼容性、插件缓存膨胀控制。
+- 维护流程：通过 Issue 收集规则请求和安全问题，通过 PR 合并可审查变更。
+
+## 快速验证
+
+提交变更前运行：
+
+```bash
+node scripts/validate-public-rules.js
+```
+
+这个检查会扫描公开规则、配置、插件和脚本，避免误提交真实代理 URI、MITM CA、UUID、密码、token 或其他私密材料。
+
+## 仓库结构
+
+```text
+Loon/          Loon 公开配置、插件、脚本和规则
+QuantumultX/   QuantumultX 配置、Rewrite、脚本和规则
+shadowrocket/  Shadowrocket 公开安全配置
+scripts/       维护和公开安全检查脚本
+.github/       GitHub Actions、Issue 模板和 PR 模板
+```
+
+## 维护文档
+
+- `CONTRIBUTING.md`：贡献流程和提交前检查。
+- `SECURITY.md`：安全问题报告方式和处理原则。
+- `MAINTAINERS.md`：维护者职责和 PR 评审标准。
+- `CHANGELOG.md`：发布和维护变更记录。
+- `SECURITY_AUDIT.md`：公开配置安全审计记录。
+
 ## Loon Advanced Auto Safe Public 配置
 
 这是公开安全版 Loon 配置模板，适合放在 GitHub 仓库中分发。真实节点、订阅、UUID、password、Reality public-key、short-id、Hysteria2 密码、MITM `ca-p12`、`ca-passphrase`、证书内容、私有域名和 token 都不要提交到仓库。
@@ -53,6 +99,12 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/private.example.co
 - `Loon/rule/*.list`
 - `README.md`
 - `SECURITY_AUDIT.md`
+- `CONTRIBUTING.md`
+- `SECURITY.md`
+- `MAINTAINERS.md`
+- `CHANGELOG.md`
+- `.github/`
+- `scripts/validate-public-rules.js`
 - `.gitignore`
 
 不要公开：
