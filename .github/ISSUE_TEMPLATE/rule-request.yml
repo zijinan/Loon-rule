@@ -1,0 +1,41 @@
+name: Rule request
+description: Request a routing, rewrite, or plugin rule change.
+title: "[Rule] "
+labels:
+  - rule-request
+body:
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client
+      options:
+        - Loon
+        - QuantumultX
+        - Shadowrocket
+        - Multiple clients
+    validations:
+      required: true
+  - type: input
+    id: service
+    attributes:
+      label: App, service, or domain
+      placeholder: Tencent Video, Kugou Music, OpenAI, example.com
+    validations:
+      required: true
+  - type: dropdown
+    id: behavior
+    attributes:
+      label: Desired behavior
+      options:
+        - DIRECT
+        - PROXY
+        - REJECT
+        - Rewrite or plugin
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Include public domains or symptoms only. Do not include private nodes, cookies, tokens, or account data.

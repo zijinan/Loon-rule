@@ -1,0 +1,31 @@
+name: Public config safety review
+description: Report a possible public-safety, privacy, or leak-prevention problem.
+title: "[Safety] "
+labels:
+  - safety
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste private subscriptions, real nodes, UUIDs, passwords, tokens, cookies, or MITM certificate material.
+  - type: input
+    id: file
+    attributes:
+      label: Affected file or rule
+      placeholder: Loon/config/Loon_Advanced_Auto_Safe.public.conf
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What looks unsafe?
+      description: Describe the risk without including private material.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Safer expected behavior
+      description: Explain what should happen instead.
+    validations:
+      required: true
