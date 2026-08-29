@@ -1,16 +1,16 @@
 # NAME: AI
 # DESC: AI service rules for Quantumult X.
 
-HOST-SUFFIX,openai.com
-HOST-SUFFIX,chatgpt.com
-HOST-SUFFIX,oaistatic.com
-HOST-SUFFIX,oaiusercontent.com
-HOST-SUFFIX,chat.openai.com
-HOST-SUFFIX,anthropic.com
-HOST-SUFFIX,claude.ai
-HOST,gemini.google.com
-HOST-SUFFIX,generativelanguage.googleapis.com
-HOST-SUFFIX,aistudio.google.com
-HOST-SUFFIX,makersuite.google.com
-HOST-SUFFIX,perplexity.ai
-HOST-SUFFIX,pplx.ai
+HOST-SUFFIX,openai.com,AI策略
+HOST-SUFFIX,chatgpt.com,AI策略
+HOST-SUFFIX,oaistatic.com,AI策略
+HOST-SUFFIX,oaiusercontent.com,AI策略
+HOST-SUFFIX,chat.openai.com,AI策略
+HOST-SUFFIX,anthropic.com,AI策略
+HOST-SUFFIX,claude.ai,AI策略
+HOST,gemini.google.com,AI策略
+HOST-SUFFIX,generativelanguage.googleapis.com,AI策略
+HOST-SUFFIX,aistudio.google.com,AI策略
+HOST-SUFFIX,makersuite.google.com,AI策略
+HOST-SUFFIX,perplexity.ai,AI策略
+HOST-SUFFIX,pplx.ai,AI策略
