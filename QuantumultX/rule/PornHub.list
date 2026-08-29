@@ -1,0 +1,13 @@
+# NAME: PornHub
+# AUTHOR: zijinan
+# REPO: https://github.com/zijinan/Loon-rule
+# UPDATED: 2026-08-29
+# FORMAT: Quantumult X / QX
+# DESC: PornHub 主站与视频 CDN 统一走代理策略；只做分流，不包含 Rewrite、Script 或 MITM。
+
+HOST-SUFFIX,pornhub.com,代理策略
+HOST-SUFFIX,pornhubpremium.com,代理策略
+HOST-SUFFIX,phncdn.com,代理策略
+HOST-SUFFIX,phprcdn.com,代理策略
+HOST-SUFFIX,phncdn.net,代理策略
+HOST-SUFFIX,phncdn.org,代理策略
