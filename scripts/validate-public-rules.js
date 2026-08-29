@@ -40,12 +40,12 @@ const contentChecks = [
   },
   {
     name: "MITM ca-p12",
-    pattern: /^\s*#?\s*ca-p12\s*=\s*(.+)\s*$/i,
+    pattern: /^[ \t]*#?[ \t]*ca-p12[ \t]*=[ \t]*(.*)$/i,
     allow: (value) => value.trim() === "" || allowedPlaceholder.test(value),
   },
   {
     name: "MITM ca-passphrase",
-    pattern: /^\s*#?\s*ca-passphrase\s*=\s*(.+)\s*$/i,
+    pattern: /^[ \t]*#?[ \t]*ca-passphrase[ \t]*=[ \t]*(.*)$/i,
     allow: (value) => value.trim() === "" || allowedPlaceholder.test(value),
   },
   {
@@ -178,7 +178,7 @@ function checkPublicSafeProfile(failures) {
   if (activeLines(serverRemote).some((line) => /https?:\/\//i.test(line))) {
     failures.push(`${file}: public-safe profile must not embed subscription URLs`);
   }
-  if (/^\s*(passphrase|p12)\s*=\s*\S+/mi.test(mitm)) {
+  if (/^[ \t]*(passphrase|p12)[ \t]*=[ \t]*\S+/mi.test(mitm)) {
     failures.push(`${file}: public-safe profile must not embed MITM credentials`);
   }
   if (/script-(request|response)-(header|body)|url\s+script-/i.test(text)) {
