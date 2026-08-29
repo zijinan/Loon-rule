@@ -3,90 +3,74 @@
 # NOTE: Keep this resource before broad DIRECT/Tencent/Google rules.
 # Updated for common apps used on iOS: WeChat/QQ, TikTok, X, Spotify, JD, YouTube and common ad SDKs.
 
-# -----------------------------
 # Tencent / WeChat / QQ ads
-# -----------------------------
-HOST-SUFFIX,ad.qq.com
-HOST-SUFFIX,ads.qq.com
-HOST-SUFFIX,gdt.qq.com
-HOST-SUFFIX,gdtimg.com
-HOST-SUFFIX,l.qq.com
-HOST-SUFFIX,h.trace.qq.com
-HOST-SUFFIX,rmonitor.qq.com
-HOST-SUFFIX,snowflake.qq.com
-HOST-SUFFIX,mazu.m.qq.com
-HOST-SUFFIX,tmfmazu.m.qq.com
-HOST-SUFFIX,c2.gdt.qq.com
-HOST-SUFFIX,canvas-cdn.gdt.qq.com
-HOST-SUFFIX,adfilter.imtt.qq.com
-HOST-SUFFIX,bsrv.qq.com
-HOST-SUFFIX,adsfile.qq.com
-HOST-SUFFIX,adslvfile.qq.com
+HOST-SUFFIX,ad.qq.com,REJECT
+HOST-SUFFIX,ads.qq.com,REJECT
+HOST-SUFFIX,gdt.qq.com,REJECT
+HOST-SUFFIX,gdtimg.com,REJECT
+HOST-SUFFIX,l.qq.com,REJECT
+HOST-SUFFIX,h.trace.qq.com,REJECT
+HOST-SUFFIX,rmonitor.qq.com,REJECT
+HOST-SUFFIX,snowflake.qq.com,REJECT
+HOST-SUFFIX,mazu.m.qq.com,REJECT
+HOST-SUFFIX,tmfmazu.m.qq.com,REJECT
+HOST-SUFFIX,c2.gdt.qq.com,REJECT
+HOST-SUFFIX,canvas-cdn.gdt.qq.com,REJECT
+HOST-SUFFIX,adfilter.imtt.qq.com,REJECT
+HOST-SUFFIX,bsrv.qq.com,REJECT
+HOST-SUFFIX,adsfile.qq.com,REJECT
+HOST-SUFFIX,adslvfile.qq.com,REJECT
 
-# -----------------------------
 # TikTok / ByteDance ads & analytics
-# -----------------------------
-HOST,ads-api.tiktok.com
-HOST,ads.tiktok.com
-HOST,ads-jp.tiktok.com
-HOST,ads-sg.tiktok.com
-HOST,analytics.tiktok.com
-HOST,business-api.tiktok.com
+HOST,ads-api.tiktok.com,REJECT
+HOST,ads.tiktok.com,REJECT
+HOST,ads-jp.tiktok.com,REJECT
+HOST,ads-sg.tiktok.com,REJECT
+HOST,analytics.tiktok.com,REJECT
+HOST,business-api.tiktok.com,REJECT
 
-# -----------------------------
 # X / Twitter ads
-# -----------------------------
-HOST,ads-api.twitter.com
+HOST,ads-api.twitter.com,REJECT
 
-# -----------------------------
 # Spotify ads
-# -----------------------------
-HOST,adstudio.spotify.com
-HOST,adstudio-assets.scdn.co
+HOST,adstudio.spotify.com,REJECT
+HOST,adstudio-assets.scdn.co,REJECT
 
-# -----------------------------
 # JD advertising endpoints
-# -----------------------------
-HOST,addata.jd.com
-HOST,ccc-x.jd.com
-HOST,dsp-x.jd.com
+HOST,addata.jd.com,REJECT
+HOST,ccc-x.jd.com,REJECT
+HOST,dsp-x.jd.com,REJECT
 
-# -----------------------------
 # Google / YouTube / Firebase / common attribution
-# -----------------------------
-HOST-SUFFIX,app-measurement.com
-HOST-SUFFIX,app-analytics-services.com
-HOST-SUFFIX,appsflyersdk.com
-HOST-SUFFIX,doubleclick.net
-HOST-SUFFIX,googleadservices.com
-HOST-SUFFIX,googlesyndication.com
-HOST-SUFFIX,google-analytics.com
-HOST,firebaselogging-pa.googleapis.com
-HOST,s.youtube.com
-HOST,ads.youtube.com
-HOST,adservice.google.com
+HOST-SUFFIX,app-measurement.com,REJECT
+HOST-SUFFIX,app-analytics-services.com,REJECT
+HOST-SUFFIX,appsflyersdk.com,REJECT
+HOST-SUFFIX,doubleclick.net,REJECT
+HOST-SUFFIX,googleadservices.com,REJECT
+HOST-SUFFIX,googlesyndication.com,REJECT
+HOST-SUFFIX,google-analytics.com,REJECT
+HOST,firebaselogging-pa.googleapis.com,REJECT
+HOST,s.youtube.com,REJECT
+HOST,ads.youtube.com,REJECT
+HOST,adservice.google.com,REJECT
 
-# -----------------------------
 # Common mobile ad SDK / tracking
-# -----------------------------
-HOST-SUFFIX,adjust.com
-HOST-SUFFIX,adjust.cn
-HOST-SUFFIX,adcolony.com
-HOST-SUFFIX,applovin.com
-HOST-SUFFIX,unityads.unity3d.com
-HOST-SUFFIX,inmobi.com
-HOST-SUFFIX,pubmatic.com
-HOST-SUFFIX,liftoff.io
-HOST-SUFFIX,chinaliftoff.io
+HOST-SUFFIX,adjust.com,REJECT
+HOST-SUFFIX,adjust.cn,REJECT
+HOST-SUFFIX,adcolony.com,REJECT
+HOST-SUFFIX,applovin.com,REJECT
+HOST-SUFFIX,unityads.unity3d.com,REJECT
+HOST-SUFFIX,inmobi.com,REJECT
+HOST-SUFFIX,pubmatic.com,REJECT
+HOST-SUFFIX,liftoff.io,REJECT
+HOST-SUFFIX,chinaliftoff.io,REJECT
 
-# -----------------------------
 # KuGou ad/report hosts
-# -----------------------------
-HOST-SUFFIX,adserviceretry.kugou.com
-HOST-SUFFIX,ads.service.kugou.com
-HOST-SUFFIX,mobilelog.kugou.com
-HOST-SUFFIX,nbcollect.kugou.com
-HOST-SUFFIX,rt-m.kugou.com
-HOST-SUFFIX,d.kugou.com
-HOST-SUFFIX,filter.kugou.com
-HOST-SUFFIX,push.mobile.kugou.com
+HOST-SUFFIX,adserviceretry.kugou.com,REJECT
+HOST-SUFFIX,ads.service.kugou.com,REJECT
+HOST-SUFFIX,mobilelog.kugou.com,REJECT
+HOST-SUFFIX,nbcollect.kugou.com,REJECT
+HOST-SUFFIX,rt-m.kugou.com,REJECT
+HOST-SUFFIX,d.kugou.com,REJECT
+HOST-SUFFIX,filter.kugou.com,REJECT
+HOST-SUFFIX,push.mobile.kugou.com,REJECT
