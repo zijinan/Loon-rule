@@ -12,6 +12,8 @@ const scannedExtensions = new Set([
   ".list",
   ".lpx",
   ".plugin",
+  ".yaml",
+  ".yml",
 ]);
 
 const allowedPrivateFiles = new Set([
@@ -72,7 +74,7 @@ function gitTrackedFiles() {
 }
 
 function shouldScanContent(file) {
-  if (!/^(Loon|QuantumultX|shadowrocket|scripts)\//.test(file)) return false;
+  if (!/^(Loon|QuantumultX|shadowrocket|scripts|\.github)\//.test(file)) return false;
   return scannedExtensions.has(path.extname(file).toLowerCase());
 }
 
@@ -105,11 +107,92 @@ function checkContent(file, failures) {
   });
 }
 
+function checkQuantumultXRuleSyntax(file, failures) {
+  if (!/^QuantumultX\/rule\/.*\.list$/i.test(file)) return;
+  const absolute = path.join(repoRoot, file);
+  const lines = fs.readFileSync(absolute, "utf8").split(/\r?\n/);
+  const supported = new Set([
+    "HOST",
+    "HOST-SUFFIX",
+    "HOST-KEYWORD",
+    "IP-CIDR",
+    "IP6-CIDR",
+    "GEOIP",
+    "FINAL",
+  ]);
+
+  lines.forEach((raw, index) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return;
+    const parts = line.split(",").map((part) => part.trim());
+    const type = parts[0].toUpperCase();
+    if (!supported.has(type)) {
+      failures.push(`${file}:${index + 1}: unsupported/unknown Quantumult X rule type ${parts[0]}`);
+      return;
+    }
+    const minFields = type === "FINAL" ? 2 : 3;
+    if (parts.length < minFields || parts.slice(0, minFields).some((part) => part === "")) {
+      failures.push(`${file}:${index + 1}: invalid Quantumult X rule; expected at least ${minFields} fields`);
+    }
+  });
+}
+
+function extractSection(text, name) {
+  const marker = `[${name}]`;
+  const start = text.indexOf(marker);
+  if (start < 0) return "";
+  const after = text.slice(start + marker.length);
+  const next = after.search(/^\s*\[[^\]]+\]/m);
+  return next < 0 ? after : after.slice(0, next);
+}
+
+function checkPublicSafeProfile(failures) {
+  const file = "QuantumultX/config/QuanX_Public_Safe.conf";
+  const absolute = path.join(repoRoot, file);
+  if (!fs.existsSync(absolute)) {
+    failures.push(`${file}: required public-safe profile is missing`);
+    return;
+  }
+
+  const text = fs.readFileSync(absolute, "utf8");
+  const rewriteLocal = extractSection(text, "rewrite_local");
+  const rewriteRemote = extractSection(text, "rewrite_remote");
+  const taskLocal = extractSection(text, "task_local");
+  const serverRemote = extractSection(text, "server_remote");
+  const mitm = extractSection(text, "mitm");
+
+  const activeLines = (section) => section
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
+
+  if (activeLines(rewriteLocal).length > 0) {
+    failures.push(`${file}: public-safe profile must not contain active rewrite_local rules`);
+  }
+  if (activeLines(rewriteRemote).length > 0) {
+    failures.push(`${file}: public-safe profile must not contain active rewrite_remote resources`);
+  }
+  if (activeLines(taskLocal).length > 0) {
+    failures.push(`${file}: public-safe profile must not contain active task_local scripts`);
+  }
+  if (activeLines(serverRemote).some((line) => /https?:\/\//i.test(line))) {
+    failures.push(`${file}: public-safe profile must not embed subscription URLs`);
+  }
+  if (/^\s*(passphrase|p12)\s*=\s*\S+/mi.test(mitm)) {
+    failures.push(`${file}: public-safe profile must not embed MITM credentials`);
+  }
+  if (/script-(request|response)-(header|body)|url\s+script-/i.test(text)) {
+    failures.push(`${file}: public-safe profile must not execute rewrite scripts`);
+  }
+}
+
 const failures = [];
 for (const file of gitTrackedFiles()) {
   checkPath(file, failures);
   checkContent(file, failures);
+  checkQuantumultXRuleSyntax(file, failures);
 }
+checkPublicSafeProfile(failures);
 
 if (failures.length > 0) {
   console.error("Public rule validation failed:");
@@ -119,4 +202,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("Public rule validation passed.");
+console.log("Public rule validation passed: secrets, QX rule syntax, and public-safe invariants are clean.");
