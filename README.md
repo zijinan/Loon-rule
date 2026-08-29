@@ -1,15 +1,36 @@
 # Loon-rule
 
-个人 Loon 分流与插件规则仓库。
+个人 Loon / Quantumult X 分流、去广告与公开安全配置仓库。
 
 ![Validate public rules](https://github.com/zijinan/Loon-rule/actions/workflows/validate-public-rules.yml/badge.svg)
 
-本仓库维护可公开分享的 Loon、QuantumultX 和 Shadowrocket 配置、分流规则、插件与安全说明。核心目标是把可复用规则公开出来，同时把真实节点、订阅、证书、token 和私有域名保留在本地。
+本仓库维护可公开分享的 Loon、Quantumult X 和 Shadowrocket 配置、分流规则、插件与安全说明。核心目标是把可复用规则公开出来，同时把真实节点、订阅、证书、token 和私有域名保留在本地。
+
+## 推荐给公开用户的安全入口
+
+如果你只是想导入一个**可公开审查、默认不运行远程 JavaScript、默认不启用 MITM Rewrite** 的 Quantumult X 配置，请优先使用：
+
+```text
+https://raw.githubusercontent.com/zijinan/Loon-rule/main/QuantumultX/config/QuanX_Public_Safe.conf
+```
+
+这个 Public Safe 配置默认：
+
+- 不包含节点、订阅、UUID、密码、token 或证书；
+- 不执行远程 JavaScript；
+- 不启用 Rewrite / Task；
+- 不修改 HTTPS 响应正文；
+- 只做分流、文本规则和高置信度域名级广告拦截；
+- 微信、QQ、腾讯、支付、国内 CDN 等采用保守兼容策略。
+
+公开安全模型和高级配置风险边界见 [`PUBLIC_TRUST.md`](PUBLIC_TRUST.md)。
+
+> `QuantumultX/config/QuanX_Optimized.conf` 属于高级功能配置，会使用第三方 Rewrite / Script 实现 YouTube 去广告、字幕翻译及部分 App 清理。它功能更强，但需要 MITM，审计成本和兼容性风险也更高，不作为陌生用户的默认安全入口。
 
 ## 项目范围
 
 - Loon 公开安全配置模板和本地私有配置占位示例。
-- QuantumultX 分流、Rewrite 和脚本配置。
+- Quantumult X Public Safe 与高级功能配置、分流、Rewrite 和脚本配置。
 - Shadowrocket 公开安全配置模板。
 - 面向 DNS 泄漏、国内 App 直连、视频/音乐插件和广告/统计拦截的维护说明。
 - 公开配置安全检查、Issue 模板、PR 模板和发布记录。
@@ -28,13 +49,13 @@
 node scripts/validate-public-rules.js
 ```
 
-这个检查会扫描公开规则、配置、插件和脚本，避免误提交真实代理 URI、MITM CA、UUID、密码、token 或其他私密材料。
+当前检查不仅扫描真实代理 URI、MITM CA、UUID、密码和 token，还会检查 `QuantumultX/rule/*.list` 的基础语法，并强制 `QuanX_Public_Safe.conf` 保持无 Rewrite、无 Task、无订阅 URL、无 MITM 凭据和无脚本执行。
 
 ## 仓库结构
 
 ```text
 Loon/          Loon 公开配置、插件、脚本和规则
-QuantumultX/   QuantumultX 配置、Rewrite、脚本和规则
+QuantumultX/   Quantumult X Public Safe、高级配置、Rewrite、脚本和规则
 shadowrocket/  Shadowrocket 公开安全配置
 scripts/       维护和公开安全检查脚本
 .github/       GitHub Actions、Issue 模板和 PR 模板
@@ -42,6 +63,7 @@ scripts/       维护和公开安全检查脚本
 
 ## 维护文档
 
+- `PUBLIC_TRUST.md`：公开用户推荐入口、权限边界和第三方依赖说明。
 - `CONTRIBUTING.md`：贡献流程和提交前检查。
 - `SECURITY.md`：安全问题报告方式和处理原则。
 - `MAINTAINERS.md`：维护者职责和 PR 评审标准。
@@ -95,9 +117,12 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/private.example.co
 可以公开：
 
 - `Loon/config/Loon_Advanced_Auto_Safe.public.conf`
+- `QuantumultX/config/QuanX_Public_Safe.conf`
 - `Loon/private.example.conf`
 - `Loon/rule/*.list`
+- `QuantumultX/rule/*.list`
 - `README.md`
+- `PUBLIC_TRUST.md`
 - `SECURITY_AUDIT.md`
 - `CONTRIBUTING.md`
 - `SECURITY.md`
@@ -147,21 +172,15 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/MissAV.lpx
 - `recombee.com`：推荐接口走代理。
 - `tsyndicate.com` / `rallytrck.website` / `bluetrafficstream.com` / `myavlive.com` / `keepshare.org`：广告、跳转、统计域名拦截。
 
-如果出现 Cloudflare 验证循环，可以在插件里临时取消：
+如果出现 Cloudflare 验证循环，可以在插件里临时启用插件中注释掉的 Cloudflare 代理规则进行排查。
 
-```ini
-# DOMAIN-SUFFIX,cloudflare.com,PROXY
-```
-
-前面的 `#` 注释符号。
-
-## 腾讯视频 AntiCache 插件
+## Quantumult X 腾讯视频 Safe 重写（可选）
 
 ```text
-https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/TencentVideo.lpx
+https://raw.githubusercontent.com/zijinan/Loon-rule/main/QuantumultX/rewrite/TencentVideo-Safe.conf
 ```
 
-说明：只 MITM 腾讯视频的小配置/广告接口，使用规则、Rewrite reject 和请求阶段脚本拦截，不做响应阶段脚本或响应体改写，避免 Loon 缓存膨胀。
+这是高级可选功能，不属于 `QuanX_Public_Safe.conf` 默认启用范围。使用 Rewrite/MITM 前请先阅读 `PUBLIC_TRUST.md`。
 
 ## 酷狗音乐 AntiCache 插件
 
