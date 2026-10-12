@@ -9,7 +9,7 @@
 # 诊断：只记录首页相关请求是否命中脚本，不修改请求。
 http-request ^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$ requires-body=true, binary-body-mode=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/feat/tencent-video-capture-20261012/Loon/script/TencentVideo.HomeFeed.Debug.js, timeout=15, tag=腾讯视频-首页请求命中诊断-r3, enable=true
 # 实际过滤：二进制响应只删除已确认的广告卡片及广告焦点块，其他返回原样。
-http-response ^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$ requires-body=true, binary-body-mode=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/feat/tencent-video-capture-20261012/Loon/script/TencentVideo.HomeFeed.js, timeout=20, tag=腾讯视频-首页广告卡片删除-r3, enable=true
+http-response ^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$ requires-body=true, binary-body-mode=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/feat/tencent-video-capture-20261012/Loon/script/TencentVideo.HomeFeed.r3.js, timeout=20, tag=腾讯视频-首页广告卡片删除-r3, enable=true
 
 [MITM]
 hostname = i.video.qq.com
