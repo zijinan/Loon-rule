@@ -1,12 +1,16 @@
-#!name=腾讯视频去广告（2026-10-12 抓包保守版）
-#!desc=针对本次抓包中的广点通统计、素材与腾讯视频广告专用接口；默认不修改播放、会员、配置及混合数据响应。
+#!name=腾讯视频首页信息流去广告（2026-10-12 抓包版）
+#!desc=针对首页推荐列表删除已识别广告卡片（含自动播放视频广告），保留普通推荐视频、会员与正片播放接口。
 #!author=zijinan
 #!homepage=https://github.com/zijinan/Loon-rule
 #!date=2026-10-12
 #!risk=medium
 
 # 重要：Loon 的 [Rule] 规则是设备级的，可能影响其他使用广点通的 App。
-# 建议先仅开启下面的 [Rewrite] 和 [MITM]，按需开启 [Rule]。
+# 建议先仅开启下面的 [Rewrite] 和 [Script]
+# 只解析 MVLPageService/getMVLPage 的二进制首页推荐响应，原样透传其他接口
+http-response ^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$ requires-body=true, binary-body-mode=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/feat/tencent-video-capture-20261012/Loon/script/TencentVideo.HomeFeed.js, timeout=15, tag=腾讯视频-首页信息流广告过滤, enable=true
+
+[MITM]，按需开启 [Rule]。
 [Rule]
 # 广点通统计/广告素材，来自本次抓包；按精确域名拦截
 # DOMAIN,vr.gdt.qq.com,REJECT
@@ -36,4 +40,4 @@
 # DNS 查询、JD/Taobao 落地页及 GTIMG 其他路径也不应整域名屏蔽。
 
 [MITM]
-hostname = pgdt.gtimg.cn, vr.gdt.qq.com, xs.gdt.qq.com, t.gdt.qq.com, rpt.gdt.qq.com, sdkreport.e.qq.com, rdelivery.qq.com
+hostname = i.video.qq.com, pgdt.gtimg.cn, vr.gdt.qq.com, xs.gdt.qq.com, t.gdt.qq.com, rpt.gdt.qq.com, sdkreport.e.qq.com, rdelivery.qq.com
