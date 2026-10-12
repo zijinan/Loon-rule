@@ -18,15 +18,15 @@
 
 [Rewrite]
 # 只匹配抓包发现的特定素材目录，不拦截全站图片、视频 CDN
-^https?:\/\/pgdt\.gtimg\.cn\/141\/20204\/snscosdownload\/SZ\/reserved\/ url reject
+^https?:\/\/pgdt\.gtimg\.cn\/141\/20204\/snscosdownload\/SZ\/reserved\/ reject
 # 广点通统计、归因上报
-^https?:\/\/vr\.gdt\.qq\.com\/gdt_stats\.fcg(?:\?|$) url reject
-^https?:\/\/xs\.gdt\.qq\.com\/car\/m\/report_m(?:\?|$) url reject
-^https?:\/\/t\.gdt\.qq\.com\/conv\/src\/61\/conv(?:\?|$) url reject
-^https?:\/\/rpt\.gdt\.qq\.com\/monitor_report_process(?:\?|$) url reject
-^https?:\/\/sdkreport\.e\.qq\.com\/link_event(?:\?|$) url reject
+^https?:\/\/vr\.gdt\.qq\.com\/gdt_stats\.fcg(?:\?|$) reject
+^https?:\/\/xs\.gdt\.qq\.com\/car\/m\/report_m(?:\?|$) reject
+^https?:\/\/t\.gdt\.qq\.com\/conv\/src\/61\/conv(?:\?|$) reject
+^https?:\/\/rpt\.gdt\.qq\.com\/monitor_report_process(?:\?|$) reject
+^https?:\/\/sdkreport\.e\.qq\.com\/link_event(?:\?|$) reject
 # 腾讯视频广告投放 SDK 统计，保留 SDK 配置及公共平台 API
-^https?:\/\/rdelivery\.qq\.com\/v1\/statistic\/report(?:\?|$) url reject
+^https?:\/\/rdelivery\.qq\.com\/v1\/statistic\/report(?:\?|$) reject
 
 # 以下接口虽然在抓包中出现，但与播放/通用配置相关，默认不屏蔽：
 # i.video.qq.com/ (TRPC 多路复用), iacc.qq.com/, iacc.rec.qq.com/
