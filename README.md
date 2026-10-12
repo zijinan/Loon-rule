@@ -189,3 +189,14 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/KugouMusic.
 ```
 
 说明：根据抓包定制，主要拦截酷狗音乐统计、曝光、推送上报、广告追踪配置、活动推广素材和大体积礼物/挂件资源；保留登录、VIP、音乐播放、歌曲封面、会员状态等核心接口。不做响应体改写，避免 Loon 缓存膨胀。
+
+
+## 书旗小说去广告（iOS 抓包精确版，可选）
+
+新增书旗小说 Loon 插件及 Quantumult X 重写资源：仅精确清理抓包确认的阅读广告 JSON，不修改章节正文、会员、登录与封面资源。
+
+- Loon 插件：`https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/plugin/ShuqiReader.lpx`
+- Quantumult X 重写：`https://raw.githubusercontent.com/zijinan/Loon-rule/main/QuantumultX/rewrite/ShuqiReader.conf`
+- 可选广告服务商分流：`https://raw.githubusercontent.com/zijinan/Loon-rule/main/QuantumultX/rule/ShuqiReader-Ads.list`
+
+**需要手动启用 HTTPS 解密并信任本机证书；第三方广告域名规则会全局生效。** 此功能不加入 Public Safe 的默认配置。证据、规则边界、使用和回退指南见 [书旗小说去广告文档](docs/ShuqiReader.md)。

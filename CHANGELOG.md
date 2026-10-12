@@ -4,6 +4,8 @@ All notable repository maintenance changes are documented here.
 
 ## [Unreleased]
 
+- Add capture-derived, opt-in ShuqiReader Loon and Quantumult X ad cleanup with regression tests; keep Public Safe unchanged.
+
 - Add public-rule validation workflow for secret-safe config checks.
 - Add contribution, security, maintainer, PR, and Issue templates.
 - Document repository scope, maintenance status, and validation commands in `README.md`.

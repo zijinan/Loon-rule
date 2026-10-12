@@ -24,3 +24,7 @@ jobs:
 
       - name: Scan public rule files
         run: node scripts/validate-public-rules.js
+
+
+      - name: Test ShuqiReader response cleaner
+        run: node tests/test-shuqi-reader.js
