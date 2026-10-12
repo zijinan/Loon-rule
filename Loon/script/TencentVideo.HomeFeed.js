@@ -7,7 +7,8 @@
  */
 (function () {
   'use strict';
-  const MAX_BODY = 1024 * 1024;
+  const MAX_BODY = 2 * 1024 * 1024;
+  const SCRIPT_VERSION = '20261012-r3';
   const AD_TYPE = 'type.googleapis.com/com.tencent.qqlive.protocol.pb.AdFeedInfo';
   const MODULE_TYPE = 'type.googleapis.com/com.tencent.qqlive.protocol.pb.Module';
   const NORMAL_CARD = 'type.googleapis.com/com.tencent.qqlive.protocol.pb.FeedVideoBoard';
@@ -18,7 +19,8 @@
   function toBytes(b) {
     if (b instanceof Uint8Array) return b;
     if (b instanceof ArrayBuffer) return new Uint8Array(b);
-    // Binary mode should supply Uint8Array. Don't corrupt a binary string.
+    if (b && ArrayBuffer.isView(b)) return new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+    // Binary mode should supply Uint8Array. Never reinterpret arbitrary strings as binary.
     return null;
   }
   function slice(b, start, end) { return b.subarray(start, end); }
@@ -199,17 +201,24 @@
   try {
     if (typeof $request === 'undefined' || !/^https:\/\/i\.video\.qq\.com\/?(?:\?.*)?$/.test($request.url || '') || typeof $response === 'undefined' || !$response) return finish({});
     const body = toBytes($response.body);
-    if (!body) return finish({});
+    if (!body) {
+      console.log('[TX-首页]['+SCRIPT_VERSION+'] 响应脚本已命中，但二进制body不可用；实际类型=' + typeof $response.body);
+      return finish({});
+    }
     const clean = transform(body);
-    if (!clean) return finish({});
+    if (!clean) {
+      if (body.length>=2 && body[0]===31 && body[1]===139) console.log('[TX-首页]['+SCRIPT_VERSION+'] 收到gzip字节，未解压，保持原样');
+      else if (contains(body, AD_TYPE)) console.log('[TX-首页]['+SCRIPT_VERSION+'] 广告类型仍存在但未过滤，长度='+body.length);
+      return finish({});
+    }
     const headers = Object.assign({}, $response.headers || {});
     Object.keys(headers).forEach(k => {
       if (/^(content-length|content-encoding|transfer-encoding)$/i.test(k)) delete headers[k];
     });
-    console.log('[腾讯视频首页广告] 已去除 ' + state.modules + ' 个广告模块、' + state.blocks + ' 个焦点广告块；正片与普通推荐保持原样');
+    console.log('[TX-首页]['+SCRIPT_VERSION+'] 已过滤广告模块='+state.modules+' 焦点广告='+state.blocks+' 字节='+body.length+'->'+clean.length);
     return finish({body: clean, headers: headers});
   } catch (error) {
-    console.log('[腾讯视频首页广告] 安全透传：' + String(error && error.message || error));
+    console.log('[TX-首页]['+SCRIPT_VERSION+'] 安全透传：' + String(error && error.message || error));
     return finish({});
   }
 })();
