@@ -1,0 +1,33 @@
+#!name= 书旗小说去广告（抓包精确版）
+#!desc= 只改写书旗阅读广告位/广告配置小 JSON；广告网络域名拦截会对手机其他 App 同样生效。
+#!author= zijinan
+#!homepage= https://github.com/zijinan/Loon-rule
+#!date= 2026-10-12
+#!risk= medium
+
+[Rule]
+# 可识别的独立广告投放/竞价域名；Loon 的域名规则是全局的，不仅作用于书旗。
+DOMAIN,dmsdk-api-ssp.dmrtb.com,REJECT
+DOMAIN,dmsdk-api.dmrtb.com,REJECT
+DOMAIN,dmsdk-tracking.dmrtb.com,REJECT
+DOMAIN,hc-ssp.sm.cn,REJECT
+# 以下是抓包中的广告日志域名；不影响小说文本但可能影响其他 App 统计。
+DOMAIN,sdk-log.partner.sm.cn,REJECT
+
+# 谨慎：广点通、阿里及京东 SDK 使用共享域名，默认不屏蔽，避免影响其他 App。
+# DOMAIN,mi.gdt.qq.com,REJECT
+# DOMAIN,win.gdt.qq.com,REJECT
+# DOMAIN,sdk.e.qq.com,REJECT
+# DOMAIN,partner.uc.cn,REJECT
+# DOMAIN,ssp-sdk-config.uc.cn,REJECT
+# DOMAIN,dsp-x.jd.com,REJECT
+
+[Script]
+# 来自抓包：阅读页广告位，清理 middle/bottom 等字段但保留任务信息。
+http-response ^https?:\/\/ocean\.shuqireader\.com\/api\/route\/iosReadPage\/adV2(?:\?|$) requires-body=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/ShuqiReader.ad.js, tag=Shuqi-Reader-AdV2, timeout=8, enable=true
+# 来自抓包：广告详情接口；已捕获服务端正常返回 data:null 的情况。
+http-response ^https?:\/\/ocean\.shuqireader\.com\/api\/ad\/adserver\/v1\/api\/getAdInfo(?:\?|$) requires-body=true, script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/ShuqiReader.ad.js, tag=Shuqi-GetAdInfo, timeout=8, enable=true
+
+[MITM]
+# 只对书旗第一方 API 开启 HTTPS 解密；不加入 img-tailor.11222.cn 等书籍封面 CDN。
+hostname = ocean.shuqireader.com
