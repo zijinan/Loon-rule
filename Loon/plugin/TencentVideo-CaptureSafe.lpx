@@ -1,0 +1,39 @@
+#!name=腾讯视频去广告（2026-10-12 抓包保守版）
+#!desc=针对本次抓包中的广点通统计、素材与腾讯视频广告专用接口；默认不修改播放、会员、配置及混合数据响应。
+#!author=zijinan
+#!homepage=https://github.com/zijinan/Loon-rule
+#!date=2026-10-12
+#!risk=medium
+
+# 重要：Loon 的 [Rule] 规则是设备级的，可能影响其他使用广点通的 App。
+# 建议先仅开启下面的 [Rewrite] 和 [MITM]，按需开启 [Rule]。
+[Rule]
+# 广点通统计/广告素材，来自本次抓包；按精确域名拦截
+# DOMAIN,vr.gdt.qq.com,REJECT
+# DOMAIN,xs.gdt.qq.com,REJECT
+# DOMAIN,t.gdt.qq.com,REJECT
+# DOMAIN,rpt.gdt.qq.com,REJECT
+# DOMAIN,pgdt.gtimg.cn,REJECT
+# DOMAIN,sdkreport.e.qq.com,REJECT
+
+[Rewrite]
+# 只匹配抓包发现的特定素材目录，不拦截全站图片、视频 CDN
+^https?:\/\/pgdt\.gtimg\.cn\/141\/20204\/snscosdownload\/SZ\/reserved\/ url reject
+# 广点通统计、归因上报
+^https?:\/\/vr\.gdt\.qq\.com\/gdt_stats\.fcg(?:\?|$) url reject
+^https?:\/\/xs\.gdt\.qq\.com\/car\/m\/report_m(?:\?|$) url reject
+^https?:\/\/t\.gdt\.qq\.com\/conv\/src\/61\/conv(?:\?|$) url reject
+^https?:\/\/rpt\.gdt\.qq\.com\/monitor_report_process(?:\?|$) url reject
+^https?:\/\/sdkreport\.e\.qq\.com\/link_event(?:\?|$) url reject
+# 腾讯视频广告投放 SDK 统计，保留 SDK 配置及公共平台 API
+^https?:\/\/rdelivery\.qq\.com\/v1\/statistic\/report(?:\?|$) url reject
+
+# 以下接口虽然在抓包中出现，但与播放/通用配置相关，默认不屏蔽：
+# i.video.qq.com/ (TRPC 多路复用), iacc.qq.com/, iacc.rec.qq.com/
+# vv.video.qq.com/getvinfo, vv6.video.qq.com/batchvinfo
+# appcfg.v.qq.com/getconf, tab.video.qq.com/tab/GetTabRemoteConfig
+# rdelivery.qq.com/v3/config/pull, playproxy.video.qq.com/monet/comm_resource/get
+# DNS 查询、JD/Taobao 落地页及 GTIMG 其他路径也不应整域名屏蔽。
+
+[MITM]
+hostname = pgdt.gtimg.cn, vr.gdt.qq.com, xs.gdt.qq.com, t.gdt.qq.com, rpt.gdt.qq.com, sdkreport.e.qq.com, rdelivery.qq.com
