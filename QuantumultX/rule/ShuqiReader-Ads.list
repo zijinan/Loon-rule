@@ -1,0 +1,7 @@
+# 书旗抓包观察到的广告服务商（可选，QX 需作为分流规则资源单独启用）
+# 注意：这些域名由其他 App 共享，启用后将全局影响这些广告/统计请求。
+HOST,dmsdk-api-ssp.dmrtb.com,REJECT
+HOST,dmsdk-api.dmrtb.com,REJECT
+HOST,dmsdk-tracking.dmrtb.com,REJECT
+HOST,hc-ssp.sm.cn,REJECT
+HOST,sdk-log.partner.sm.cn,REJECT
