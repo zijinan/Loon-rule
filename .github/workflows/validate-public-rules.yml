@@ -28,3 +28,6 @@ jobs:
 
       - name: Test ShuqiReader response cleaner
         run: node tests/test-shuqi-reader.js
+
+      - name: Test ONE relay timeout and failure recovery
+        run: node tests/test-one-relay.js
