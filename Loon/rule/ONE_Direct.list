@@ -1,0 +1,43 @@
+# NAME: ONE_Direct
+# AUTHOR: zijinan / ChatGPT
+# UPDATED: 2026-10-16
+# DESC: ONE app domain-only DIRECT rules from provided 2026-10-16 traffic capture.
+# USAGE: In Loon > Remote Rule, import this URL and set policy=DIRECT.
+# IMPORTANT: Put this remote rule ahead of advertising / privacy REJECT lists.
+# IMPORTANT: This file contains ONLY routing matches, not REJECT, Rewrite, MITM or JavaScript.
+# PLUGIN: Keep https://one-api.zzxu.de/one/one.lpx separately enabled in Loon Plugins.
+#         The plugin host is deliberately included here. Routing rules do not replace its rewrites.
+# EXCLUSIONS: Shared dns.alidns.com and www.google-analytics.com are intentionally omitted.
+# IP: Capture has no verified destination/server IP. IP: 0.0.0.0 is a request header placeholder, NOT a server IP.
+
+# One main website / original API / third-party Loon plugin endpoint
+DOMAIN,j7tu.com
+DOMAIN,api.3459381.com
+DOMAIN,api.em1oifd0.com
+DOMAIN,one-api.zzxu.de
+
+# ONE video stream / image assets
+DOMAIN,vd.qmq85ps.com
+DOMAIN,pwavddl.t556wzr.com
+DOMAIN,pwavd123.phd3wfh.com
+DOMAIN,enimg.k8b3rsp.com
+
+# ONE backup API domain-check endpoints
+DOMAIN,api.61c76a0.com
+DOMAIN,api.j7y675.com
+DOMAIN,0325api.santiyu.com
+DOMAIN,api.87735d5.com
+DOMAIN,api.c6dd5cc.com
+DOMAIN,newbie.t9i1htm.live
+DOMAIN,newbie.vmcirh1.live
+DOMAIN,newbie.edxzxbe.live
+DOMAIN,newbie.var63im.live
+DOMAIN,newbie.rbsn2cf.live
+DOMAIN,newbie.6ed1dxb.live
+DOMAIN,newbie.vjmxy5a.live
+DOMAIN,newbie.u6ywvmg.live
+DOMAIN,newbie.4qcc5gm.live
+DOMAIN,newbie.j4asxrp.live
+
+# ONE observed telemetry host (routing only; do not REJECT)
+DOMAIN,www.abfb63b.com
