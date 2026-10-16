@@ -7,23 +7,39 @@ on:
 permissions:
   contents: read
 jobs:
-  download:
+  probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 4
     steps:
-      - name: Inspect upstream status and redirect without executing plugin
+      - name: Probe text resources and User-Agent variants safely
         shell: bash
         run: |
           set -euo pipefail
-          curl --silent --show-error --dump-header /tmp/hdr --connect-timeout 12 --max-time 30 --output /tmp/body 'https://one-api.zzxu.de/one/one.lpx'
-          echo ONE_RESPONSE_HEADERS_BEGIN
-          cat /tmp/hdr
-          echo ONE_RESPONSE_HEADERS_END
-          bytes=$(wc -c < /tmp/body)
-          echo "ONE_BODY_BYTES=$bytes"
-          if [ "$bytes" -gt 0 ] && [ "$bytes" -lt 100000 ]; then
-            echo ONE_BODY_BASE64_BEGIN
-            base64 -w0 /tmp/body
-            echo
-            echo ONE_BODY_BASE64_END
-          fi
+          urls=(
+            'https://one-api.zzxu.de/one/one.lpx'
+            'https://one-api.zzxu.de/one/one.lpx?raw=1'
+            'https://one-api.zzxu.de/one/one.lpx?download=1'
+            'https://one-api.zzxu.de/one/one.sgmodule'
+            'https://one-api.zzxu.de/one/one.conf'
+            'https://one-api.zzxu.de/one/qx.js'
+            'https://one-api.zzxu.de/one/loon.js'
+            'https://one-api.zzxu.de/one/one.js'
+          )
+          uas=('curl/8' 'Loon/3.2.0' 'Loon' 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_1 like Mac OS X)')
+          for u in "${urls[@]}"; do
+            for ua in "${uas[@]}"; do
+              curl --silent --show-error --max-time 15 --connect-timeout 8 --dump-header /tmp/hdr --output /tmp/body --user-agent "$ua" "$u" || true
+              status=$(grep -Ei '^HTTP/' /tmp/hdr | tail -1 | tr -d '\r')
+              loc=$(grep -Ei '^location:' /tmp/hdr | tail -1 | tr -d '\r' || true)
+              ctype=$(grep -Ei '^content-type:' /tmp/hdr | tail -1 | tr -d '\r' || true)
+              bytes=$(wc -c < /tmp/body || echo 0)
+              echo "ONE_PROBE url=$u ua=$ua status=$status size=$bytes $ctype $loc"
+              if [ "$bytes" -gt 30 ] && [ "$bytes" -lt 100000 ] && { grep -Eq '^\[(Rule|Script|MITM|URL Rewrite|rewrite_local)\]' /tmp/body || grep -q 'script-path=' /tmp/body; }; then
+                echo "ONE_CAPTURE url=$u ua=$ua"
+                echo ONE_SOURCE_BASE64_BEGIN
+                base64 -w0 /tmp/body
+                echo
+                echo ONE_SOURCE_BASE64_END
+              fi
+            done
+          done
