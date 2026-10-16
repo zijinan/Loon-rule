@@ -11,17 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - name: Fetch original ONE Loon plugin without running it
+      - name: Inspect upstream status and redirect without executing plugin
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --location --retry 2 --connect-timeout 12 --max-time 40 --output /tmp/one.lpx 'https://one-api.zzxu.de/one/one.lpx'
-          test -s /tmp/one.lpx
-          bytes=$(wc -c < /tmp/one.lpx)
-          echo "UPSTREAM_BYTES=$bytes"
-          test "$bytes" -le 100000
-          grep -Eq '^\[(Rule|Script|MITM|URL Rewrite)\]' /tmp/one.lpx
-          echo ONE_UPSTREAM_BASE64_BEGIN
-          base64 -w0 /tmp/one.lpx
-          echo
-          echo ONE_UPSTREAM_BASE64_END
+          curl --silent --show-error --dump-header /tmp/hdr --connect-timeout 12 --max-time 30 --output /tmp/body 'https://one-api.zzxu.de/one/one.lpx'
+          echo ONE_RESPONSE_HEADERS_BEGIN
+          cat /tmp/hdr
+          echo ONE_RESPONSE_HEADERS_END
+          bytes=$(wc -c < /tmp/body)
+          echo "ONE_BODY_BYTES=$bytes"
+          if [ "$bytes" -gt 0 ] && [ "$bytes" -lt 100000 ]; then
+            echo ONE_BODY_BASE64_BEGIN
+            base64 -w0 /tmp/body
+            echo
+            echo ONE_BODY_BASE64_END
+          fi
