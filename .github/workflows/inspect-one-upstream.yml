@@ -1,0 +1,27 @@
+name: Inspect ONE upstream Loon plugin
+on:
+  push:
+    paths:
+      - .github/workflows/inspect-one-upstream.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Fetch original ONE Loon plugin without running it
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 2 --connect-timeout 12 --max-time 40 --output /tmp/one.lpx 'https://one-api.zzxu.de/one/one.lpx'
+          test -s /tmp/one.lpx
+          bytes=$(wc -c < /tmp/one.lpx)
+          echo "UPSTREAM_BYTES=$bytes"
+          test "$bytes" -le 100000
+          grep -Eq '^\[(Rule|Script|MITM|URL Rewrite)\]' /tmp/one.lpx
+          echo ONE_UPSTREAM_BASE64_BEGIN
+          base64 -w0 /tmp/one.lpx
+          echo
+          echo ONE_UPSTREAM_BASE64_END
