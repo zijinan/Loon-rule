@@ -8,9 +8,11 @@
 
 ## 可用文件
 
-- `Loon/plugin/One_Direct_Compatible.lpx`：**推荐安装的修复版**，保留原来的 MITM 和请求脚本规则，在插件内额外增加 `DOMAIN,one-api.zzxu.de,PROXY`，并使用仓库固定版本脚本。
+- `Loon/plugin/One_Direct_Compatible.lpx`：**推荐安装的容错版**，保留原来的 MITM 和请求匹配范围，在插件内设置 `DOMAIN,one-api.zzxu.de,PROXY`，脚本超时显式设为 12 秒，引用 `One_Loon_Resilient.js`。
 - `Loon/plugin/One_Upstream_20261016.lpx`：原插件（使用 Loon User-Agent 从 `https://one-api.zzxu.de/one/one.lpx` 获得的快照），只用于备份对比。
 - `Loon/script/One_Loon_Upstream_20261016.js`：原插件引用的 `loon.js` 代码快照；仅调整分发位置，未更改原逻辑。
+- `Loon/script/One_Loon_Resilient.js`：**新容错脚本**，继承原来的 API 转发方法，加入瞬时故障降级、25 秒熔断与写请求保护。
+- `tests/test-one-relay.js`：离线验证正常响应、超时、HTML 网关错误、降级以及 POST 写入保护。
 - `Loon/rule/ONE_Direct.list`：独立直连规则，只包含已观测的入口及静态媒体主机。
 
 ## Loon 使用方法
@@ -29,3 +31,33 @@
 - 此修复不引入广告 REJECT、响应体替换或新的 MITM 范围，且没有编造未在抓包中证明的目标服务器 IP。
 - 固定快照不能自动跟随上游脚本更新，若第三方 API 或脚本逻辑变化，可能需要重新对比上游版本。
 - GitHub 规则校验通过不等于 Loon 真机运行测试；是否修复成功应以你本机插件脚本运行结果、请求日志和内容加载为准。
+
+## 2026-10-16 API 不稳定修复记录
+
+### 已确认的两个问题
+
+1. 原始脚本 `$httpClient` 超时 15 秒，而插件的 Loon `http-request` 未显式配置脚本超时（旧语法默认 10 秒），出现拥塞时可能导致脚本比请求先超时。
+2. 原始脚本只要收到网络错误就合成 HTTP 502，没有向原始 API 降级的策略。
+
+原抓包里约 59 条请求经过 `one-api.zzxu.de`，HTTP 200/204 并不能说明这个中转在全天稳定，单次抓包不足以测算故障率。
+
+### 新版本行为
+
+- Loon 脚本执行超时：12 秒；向 relay 发起的 HTTP 客户端请求超时：6.5 秒。
+- Relay 超时、HTTP 408/425/429、5xx，或 GET 请求遇到 HTTP 200 网关 HTML 页面：将可安全降级的读取请求交还原始 API 并选择 `DIRECT`。
+- 能安全降级的请求为 GET/HEAD/OPTIONS 和已知内容读取路径下的 POST（article、navigation、search、area、panda、actor、notice、feed、rank、topic、novel、live、popup）。
+- 遇到中转故障后进入 25 秒短熔断期：上述读取请求不再等待中转，直接交由源站处理；后续请求恢复后解除。
+- 未知 POST、PUT、PATCH、DELETE 等可能写入状态的请求**不会自动重试或改向源站发送**，避免重复支付、登录、短信或其他账户操作；上游已返回的错误码予以保留，网络错误则返回 502。
+- 与原插件一样，插件中转仍依赖唯一的第三方 `one-api.zzxu.de`，**本修复不能保证解锁功能在第三方服务器宕机时继续工作**。降级只为保住源站可直接提供的正常服务。
+- 保持单独的静态资源 DIRECT 规则；不允许把 relay 添加到这份 DIRECT 列表。
+- 安全处理仅根据请求方法与 URL **路径类别近似识别**读取接口；如果某个 POST 读取路径事实上也具有服务端写入副作用，仍可能有重复处理风险，应按具体业务端点再收紧名单。
+
+### 更新方式
+
+无需重新导入旧地址：打开 Loon 的插件列表，刷新 `One_Direct_Compatible.lpx` 即可；确保插件的 PROXY 映射为实际可用的代理节点或策略组，同时关闭官方原版 `one.lpx`，避免脚本重复匹配。
+
+### 验证
+
+GitHub Actions 工作流 `Validate public rules` 新增 `node tests/test-one-relay.js` 离线回归测试；实际网络稳定性仍须在 Loon 设备上观察插件日志及原始 API 是否可直接访问。
+
+如需彻底解决第三方中转不稳定，必须取得**经过验证、被授权、接口兼容的备用中转服务**，或由第三方提供高可用方案。不能把抓包中的随机 API 域名简单当作等价中转。
