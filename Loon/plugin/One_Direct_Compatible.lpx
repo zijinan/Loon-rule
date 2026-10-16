@@ -1,5 +1,5 @@
-#!name=One（直连兼容修复版）
-#!desc=基于 baby 原版 One 插件：修复分流冲突，确保 API 中转可选择代理；静态资源由独立规则直连。
+#!name=One（API 容错版）
+#!desc=ONE API 中转故障自动降级：7秒内判断中转故障，安全读取请求直连源站，防止重复提交写操作。
 #!icon=https://raw.githubusercontent.com/fishdown/Icon/refs/heads/master/app/one.png
 #!tag=18+
 
@@ -10,7 +10,7 @@
 DOMAIN,one-api.zzxu.de,PROXY
 
 [Script]
-http-request ^https?:\/\/((?:\w*api|jmtp)\.(?:2b37894\.com|35a46dd\.com|43b8477\.com|5ce3771\.com|632d809\.com|apubis\.com|einhn4\.com|53cuk7g\.com|em1oifd0\.com|pjq6he\.com|zbdk8ws\.com|f38khx\.com|deyhhc3\.com|68f4deb\.com|3459381\.com|61c76a0\.com|87735d5\.com|afe9a49\.com|c6dd5cc\.com|b675211\.com|a9a2bc4\.com|8eb269a\.com|4c86d03\.com|979bb9e\.com|988068b\.com|9cbd862\.com|c2e777b\.com|b676039\.com|ab1e7ee\.com|5ed249d\.com|2b1daea\.com|4934430\.com|645fb8d\.com|5ebd5d\.com|k55n2r\.com|26bb4xt\.com|vf5x3hv\.com|fexsqz\.com|ec53y2t\.com|j7y675\.com|nj5byj6j\.com|ecmxb7e\.com))\/(v\d+\.\d+)\/((?:bootstrap|user|article|my|navigation|ad|share|vip|sendsms|refresh|comment|search|area|panda|actor|notice|message|game|wallet|feed|rank|topic|novel|live|popup)(?=\/|$|[?#])(?:\/[\w\/.-]*)?) script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/One_Loon_Upstream_20261016.js, tag=One解锁插件, requires-body=true
+http-request ^https?:\/\/((?:\w*api|jmtp)\.(?:2b37894\.com|35a46dd\.com|43b8477\.com|5ce3771\.com|632d809\.com|apubis\.com|einhn4\.com|53cuk7g\.com|em1oifd0\.com|pjq6he\.com|zbdk8ws\.com|f38khx\.com|deyhhc3\.com|68f4deb\.com|3459381\.com|61c76a0\.com|87735d5\.com|afe9a49\.com|c6dd5cc\.com|b675211\.com|a9a2bc4\.com|8eb269a\.com|4c86d03\.com|979bb9e\.com|988068b\.com|9cbd862\.com|c2e777b\.com|b676039\.com|ab1e7ee\.com|5ed249d\.com|2b1daea\.com|4934430\.com|645fb8d\.com|5ebd5d\.com|k55n2r\.com|26bb4xt\.com|vf5x3hv\.com|fexsqz\.com|ec53y2t\.com|j7y675\.com|nj5byj6j\.com|ecmxb7e\.com))\/(v\d+\.\d+)\/((?:bootstrap|user|article|my|navigation|ad|share|vip|sendsms|refresh|comment|search|area|panda|actor|notice|message|game|wallet|feed|rank|topic|novel|live|popup)(?=\/|$|[?#])(?:\/[\w\/.-]*)?) script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/One_Loon_Resilient.js, tag=One API 容错, requires-body=true, timeout=12
 
 [Mitm]
 hostname = *.2b37894.com, *.35a46dd.com, *.43b8477.com, *.5ce3771.com, *.632d809.com, *.apubis.com, *.einhn4.com, *.53cuk7g.com, *.em1oifd0.com, *.pjq6he.com, *.zbdk8ws.com, *.f38khx.com, *.deyhhc3.com, *.68f4deb.com, *.3459381.com, *.61c76a0.com, *.87735d5.com, *.afe9a49.com, *.c6dd5cc.com, *.b675211.com, *.a9a2bc4.com, *.8eb269a.com, *.4c86d03.com, *.979bb9e.com, *.988068b.com, *.9cbd862.com, *.c2e777b.com, *.b676039.com, *.ab1e7ee.com, *.5ed249d.com, *.2b1daea.com, *.4934430.com, *.645fb8d.com, *.5ebd5d.com, *.k55n2r.com, *.26bb4xt.com, *.vf5x3hv.com, *.fexsqz.com, *.ec53y2t.com, *.j7y675.com, *.nj5byj6j.com, *.ecmxb7e.com
