@@ -7,39 +7,20 @@ on:
 permissions:
   contents: read
 jobs:
-  probe:
+  fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 3
     steps:
-      - name: Probe text resources and User-Agent variants safely
+      - name: Fetch source of referenced Loon runtime (do not execute)
         shell: bash
         run: |
           set -euo pipefail
-          urls=(
-            'https://one-api.zzxu.de/one/one.lpx'
-            'https://one-api.zzxu.de/one/one.lpx?raw=1'
-            'https://one-api.zzxu.de/one/one.lpx?download=1'
-            'https://one-api.zzxu.de/one/one.sgmodule'
-            'https://one-api.zzxu.de/one/one.conf'
-            'https://one-api.zzxu.de/one/qx.js'
-            'https://one-api.zzxu.de/one/loon.js'
-            'https://one-api.zzxu.de/one/one.js'
-          )
-          uas=('curl/8' 'Loon/3.2.0' 'Loon' 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_1 like Mac OS X)')
-          for u in "${urls[@]}"; do
-            for ua in "${uas[@]}"; do
-              curl --silent --show-error --max-time 15 --connect-timeout 8 --dump-header /tmp/hdr --output /tmp/body --user-agent "$ua" "$u" || true
-              status=$(grep -Ei '^HTTP/' /tmp/hdr | tail -1 | tr -d '\r')
-              loc=$(grep -Ei '^location:' /tmp/hdr | tail -1 | tr -d '\r' || true)
-              ctype=$(grep -Ei '^content-type:' /tmp/hdr | tail -1 | tr -d '\r' || true)
-              bytes=$(wc -c < /tmp/body || echo 0)
-              echo "ONE_PROBE url=$u ua=$ua status=$status size=$bytes $ctype $loc"
-              if [ "$bytes" -gt 30 ] && [ "$bytes" -lt 100000 ] && { grep -Eq '^\[(Rule|Script|MITM|URL Rewrite|rewrite_local)\]' /tmp/body || grep -q 'script-path=' /tmp/body; }; then
-                echo "ONE_CAPTURE url=$u ua=$ua"
-                echo ONE_SOURCE_BASE64_BEGIN
-                base64 -w0 /tmp/body
-                echo
-                echo ONE_SOURCE_BASE64_END
-              fi
-            done
-          done
+          curl --fail --silent --show-error --location --max-time 25 --output /tmp/loon.js 'https://one-api.zzxu.de/one/loon.js'
+          bytes=$(wc -c < /tmp/loon.js)
+          echo "ONE_RUNTIME_BYTES=$bytes"
+          test "$bytes" -gt 0
+          test "$bytes" -le 20000
+          echo ONE_RUNTIME_BASE64_BEGIN
+          base64 -w0 /tmp/loon.js
+          echo
+          echo ONE_RUNTIME_BASE64_END
