@@ -1,0 +1,76 @@
+name: Sync Mihomo anti-AD provider
+
+on:
+  schedule:
+    - cron: "23 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mihomo-anti-ad-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download and validate upstream rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-all-errors \
+            https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-clash.yaml \
+            --output "$RUNNER_TEMP/anti-ad-upstream.yaml"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import os
+
+          source = Path(os.environ["RUNNER_TEMP"]) / "anti-ad-upstream.yaml"
+          text = source.read_text(encoding="utf-8")
+          lines = text.splitlines()
+          try:
+              payload_index = lines.index("payload:")
+          except ValueError:
+              raise SystemExit("upstream file has no top-level payload")
+
+          entries = []
+          for line in lines[payload_index + 1:]:
+              if not line.strip() or line.lstrip().startswith("#"):
+                  continue
+              match = re.fullmatch(r"  - '([^']+)'", line)
+              if not match:
+                  raise SystemExit("unexpected rule format; refusing to publish")
+              entries.append(match.group(1))
+
+          if len(entries) < 50000:
+              raise SystemExit(f"rule count unexpectedly low: {len(entries)}")
+
+          header = (
+              "# Source: https://github.com/privacy-protection-tools/anti-AD/blob/master/anti-ad-clash.yaml\n"
+              "# Copyright (c) 2017-2019 gently\n"
+              "# Licensed under MIT; see Mihomo/anti-AD-LICENSE.txt.\n\n"
+          )
+          target = Path("Mihomo/anti-ad.yaml")
+          target.write_text(header + text, encoding="utf-8", newline="\n")
+          print(f"Validated and prepared {len(entries)} domain rules.")
+          PY
+
+      - name: Publish changed rule file
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- Mihomo/anti-ad.yaml
+          if git diff --cached --quiet; then
+            echo "The mirrored rule file is already current."
+          else
+            git commit -m "chore(mihomo): sync anti-AD rules"
+            git push
+          fi

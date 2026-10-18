@@ -31,7 +31,8 @@ https://raw.githubusercontent.com/zijinan/Loon-rule/main/QuantumultX/config/Quan
 
 - Loon 公开安全配置模板和本地私有配置占位示例。
 - Quantumult X Public Safe 与高级功能配置、分流、Rewrite 和脚本配置。
-- Shadowrocket 公开安全配置模板。
+- Shadowrocket 公开安全配置模板.
+- Mihomo anti-AD 远程规则集及每日同步。
 - 面向 DNS 泄漏、国内 App 直连、视频/音乐插件和广告/统计拦截的维护说明。
 - 公开配置安全检查、Issue 模板、PR 模板和发布记录。
 
@@ -57,6 +58,7 @@ node scripts/validate-public-rules.js
 Loon/          Loon 公开配置、插件、脚本和规则
 QuantumultX/   Quantumult X Public Safe、高级配置、Rewrite、脚本和规则
 shadowrocket/  Shadowrocket 公开安全配置
+Mihomo/       Mihomo anti-AD 远程规则集
 scripts/       维护和公开安全检查脚本
 .github/       GitHub Actions、Issue 模板和 PR 模板
 ```
