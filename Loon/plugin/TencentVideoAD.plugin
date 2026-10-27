@@ -1,0 +1,26 @@
+#!name = 腾讯视频广告净化（QX 移植版）
+#!desc = 移植 ZenmoFeiShi 的腾讯视频去广告脚本至 Loon；支持部分开屏/贴片/暂停/信息流处理。效果取决于 App 版本和 MITM 命中。
+#!author = ZenmoFeiShi（原始脚本） / Loon 适配
+#!homepage = https://github.com/ZenmoFeiShi/Qx/blob/main/TxvideoAD.snippet
+#!date = 2026-10-27
+#!tag = 广告拦截,腾讯视频
+#!type = normal
+# 注意：本插件会 MITM 解密列出的腾讯视频接口，并修改部分二进制协议和应用配置。
+# 如视频播放异常，请先关闭此插件，再排查冲突。
+
+[Argument]
+tx_debug = switch,false,tag=诊断日志,desc=开启后日志会显示请求命中及是否实际修改；正常使用建议关闭
+
+[Rule]
+DOMAIN,iacc.stgw.qq.com,REJECT
+DOMAIN,tacc.video.qq.com,REJECT
+
+[Script]
+request if ${url} ~= /^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 请求去广告", timeout=30, requires_body=true, binary_body_mode=true
+response if ${url} ~= /^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 响应去广告", timeout=30, requires_body=true, binary_body_mode=true
+response if ${url} ~= /^https?:\/\/iacc\.qq\.com\/(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 贴片和暂停广告", timeout=30, requires_body=true, binary_body_mode=true
+response if ${url} ~= /^https?:\/\/config\.ab\.qq\.com\/tab\/GetTabRemoteConfig(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 导航配置净化", timeout=30, requires_body=true, binary_body_mode=true
+response if ${url} ~= /^https:\/\/rdelivery\.qq\.com\/v1\/sdkconfig\/get(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 灰度配置净化", timeout=30, requires_body=true, binary_body_mode=true
+
+[Mitm]
+hostname = i.video.qq.com, iacc.qq.com, config.ab.qq.com, rdelivery.qq.com
