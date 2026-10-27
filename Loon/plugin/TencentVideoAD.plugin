@@ -16,6 +16,8 @@ DOMAIN,iacc.stgw.qq.com,REJECT
 DOMAIN,tacc.video.qq.com,REJECT
 
 [Script]
+# 手动执行下方 Generic 脚本，可先确认插件脚本能运行（不等于去广告成功）
+generic then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoCheck.js") with tag="腾讯视频｜诊断插件是否加载", timeout=10
 request if ${url} ~= /^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 请求去广告", timeout=30, requires_body=true, binary_body_mode=true
 response if ${url} ~= /^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 响应去广告", timeout=30, requires_body=true, binary_body_mode=true
 response if ${url} ~= /^https?:\/\/iacc\.qq\.com\/(?:\?.*)?$/i then script("https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TencentVideoAD.js", {${tx_debug}}) with tag="TX 贴片和暂停广告", timeout=30, requires_body=true, binary_body_mode=true
