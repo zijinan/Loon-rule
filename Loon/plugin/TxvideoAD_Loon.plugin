@@ -1,0 +1,21 @@
+#!name = 腾讯视频净化（ZenmoFeiShi 移植 / Loon）
+#!desc = 移植 ZenmoFeiShi/Qx 的腾讯视频规则；保留广告相关处理，屏蔽对青少年设置的修改。需开启 MITM；效果随 App 版本变化。
+#!author = TG@ZenMoFiShi（原始脚本）；Loon 兼容适配
+#!homepage = https://github.com/ZenmoFeiShi/Qx
+#!date = 2026-10-30
+#!type = normal
+
+# 不要与仓库中原有的 TencentVideoAD.plugin 同时启用。
+[Rule]
+DOMAIN,iacc.stgw.qq.com,REJECT
+DOMAIN,tacc.video.qq.com,REJECT
+
+[Script]
+http-request ^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TxvideoAD_Loon.js,tag=腾讯视频请求净化,requires-body=true,binary-body-mode=true,timeout=30,enable=true
+http-response ^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TxvideoAD_Loon.js,tag=腾讯视频响应净化,requires-body=true,binary-body-mode=true,timeout=30,enable=true
+http-response ^https?:\/\/iacc\.qq\.com\/(?:\?.*)?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TxvideoAD_Loon.js,tag=腾讯视频贴片和暂停广告净化,requires-body=true,binary-body-mode=true,timeout=30,enable=true
+http-response ^https?:\/\/config\.ab\.qq\.com\/tab\/GetTabRemoteConfig(?:\?.*)?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TxvideoAD_Loon.js,tag=腾讯视频栏目净化,requires-body=true,binary-body-mode=true,timeout=30,enable=true
+http-response ^https:\/\/rdelivery\.qq\.com\/v1\/sdkconfig\/get(?:\?.*)?$ script-path=https://raw.githubusercontent.com/zijinan/Loon-rule/main/Loon/script/TxvideoAD_Loon.js,tag=腾讯视频投放配置净化,requires-body=true,binary-body-mode=false,timeout=30,enable=true
+
+[MITM]
+hostname = i.video.qq.com, iacc.qq.com, config.ab.qq.com, rdelivery.qq.com
